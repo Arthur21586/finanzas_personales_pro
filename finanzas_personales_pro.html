@@ -37,6 +37,34 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
+    <!-- PANTALLA DE ACCESO / LOGIN -->
+    <div id="authScreen" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-8 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-6 text-center">
+            <div class="bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-brand-500/10">
+                <i class="fa-solid fa-lock text-2xl"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold tracking-tight">Bienvenido a tus Finanzas Personales</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Ingresa tu contraseña para acceder a tu panel financiero seguro.</p>
+            </div>
+            <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Contraseña de Acceso</label>
+                    <input type="password" id="accessPassword" placeholder="Ej. 1234 o tu clave" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div class="flex space-x-3 pt-2">
+                    <button type="button" onclick="exitApp()" class="w-1/2 px-4 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 rounded-xl font-semibold text-sm transition-colors">
+                        Salir
+                    </button>
+                    <button type="submit" class="w-1/2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm shadow-md shadow-brand-600/20 transition-all">
+                        Entrar
+                    </button>
+                </div>
+            </form>
+            <p class="text-[11px] text-slate-400">Contraseña predeterminada inicial: <strong class="text-slate-600 dark:text-slate-300">1234</strong> (Puedes cambiarla dentro de la app).</p>
+        </div>
+    </div>
+
     <!-- Header / Navbar Superior -->
     <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 px-4 lg:px-8 py-3 flex items-center justify-between shadow-xs">
         <div class="flex items-center space-x-3">
@@ -139,6 +167,10 @@
                 <a href="#" data-section="aiadvisor" class="nav-link flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50">
                     <i class="fa-solid fa-robot w-5 text-center text-brand-500"></i>
                     <span>Asesor Financiero IA</span>
+                </a>
+                <a href="#" data-section="security" class="nav-link flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50">
+                    <i class="fa-solid fa-key w-5 text-center text-amber-500"></i>
+                    <span>Seguridad y Contraseña</span>
                 </a>
             </nav>
 
@@ -475,7 +507,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <h2 class="text-2xl font-bold tracking-tight">Cuentas y Efectivo</h2>
-                        <p class="text-sm text-slate-500">Lugares donde tienes tu dinero y tarjetas de crédito.</p>
+                        <p class="text-sm text-slate-500">Lugares donde tienes tu dinero.</p>
                     </div>
                     <button onclick="openModal('account')" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md flex items-center space-x-2">
                         <i class="fa-solid fa-plus"></i><span>Nueva Cuenta</span>
@@ -542,6 +574,37 @@
                     <div id="aiResponseContainer" class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed min-h-[160px] whitespace-pre-line bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
                         Haz clic en el botón de arriba para generar tu análisis financiero personalizado con IA. El asesor evaluará tus ingresos, deudas, ahorros y gastos para sugerirte estrategias efectivas de ahorro y control.
                     </div>
+                </div>
+            </section>
+
+            <!-- 12. SEGURIDAD Y CONTRASEÑA -->
+            <section id="sec-security" class="space-y-6 content-section hidden">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight">Seguridad y Contraseña</h2>
+                    <p class="text-sm text-slate-500">Modifica la contraseña de acceso a tu aplicación de finanzas.</p>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs max-w-lg space-y-4">
+                    <h3 class="font-bold text-base">Cambiar Contraseña</h3>
+                    <form onsubmit="handlePasswordChange(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1">Contraseña Actual</label>
+                            <input type="password" id="currentPassword" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl p-2.5 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1">Nueva Contraseña</label>
+                            <input type="password" id="newPassword" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl p-2.5 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1">Confirmar Nueva Contraseña</label>
+                            <input type="password" id="confirmPassword" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl p-2.5 outline-none">
+                        </div>
+                        <div class="flex justify-end pt-2">
+                            <button type="submit" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm shadow-md">
+                                Actualizar Contraseña
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </section>
         </main>
@@ -613,12 +676,59 @@
         };
 
         let appData = JSON.parse(localStorage.getItem('finanzas_pro_data')) || DEFAULT_DATA;
+        let appPassword = localStorage.getItem('finanzas_pro_password') || '1234';
         let currentPeriod = 'month';
         let chartsInstance = {};
 
         function saveAppData() {
             localStorage.setItem('finanzas_pro_data', JSON.stringify(appData));
             initApp();
+        }
+
+        // --- SISTEMA DE AUTENTICACIÓN ---
+        function handleLogin(event) {
+            event.preventDefault();
+            const pass = document.getElementById('accessPassword').value;
+            if(pass === appPassword) {
+                document.getElementById('authScreen').classList.add('hidden');
+                showNotification('Sesión iniciada con éxito', 'success');
+            } else {
+                showNotification('Contraseña incorrecta. (Por defecto: 1234)', 'error');
+            }
+        }
+
+        function exitApp() {
+            if(confirm('¿Deseas salir de la aplicación?')) {
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('accessPassword').value = '';
+            }
+        }
+
+        function handlePasswordChange(event) {
+            event.preventDefault();
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            if(current !== appPassword) {
+                showNotification('La contraseña actual es incorrecta', 'error');
+                return;
+            }
+            if(newPass !== confirmPass) {
+                showNotification('Las nuevas contraseñas no coinciden', 'error');
+                return;
+            }
+            if(newPass.length < 4) {
+                showNotification('La contraseña debe tener al menos 4 caracteres', 'error');
+                return;
+            }
+
+            appPassword = newPass;
+            localStorage.setItem('finanzas_pro_password', appPassword);
+            showNotification('Contraseña actualizada correctamente', 'success');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
         }
 
         function formatAllData() {
@@ -990,7 +1100,6 @@
                 if(m.type === 'expense') { icon = '🔴'; typeText = 'Gasto'; amountClass = 'text-rose-600'; }
                 else if(m.type === 'saving') { icon = '🔵'; typeText = 'Ahorro'; amountClass = 'text-blue-600'; }
                 else if(m.type === 'debt_payment') { icon = '🟠'; typeText = 'Pago Deuda'; amountClass = 'text-amber-600'; }
-                else if(m.type === 'account_deposit') { icon = '💵'; typeText = 'Depósito'; amountClass = 'text-teal-600'; }
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
                         <td class="p-4 text-xs">${m.date}</td><td class="p-4"><span class="font-medium text-xs">${icon} ${typeText}</span></td>
@@ -1014,45 +1123,19 @@
             container.innerHTML = '';
             appData.accounts.forEach(acc => {
                 container.innerHTML += `
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-teal-50 text-teal-600">${acc.type}</span>
-                            <div class="space-x-1">
-                                <button onclick="editItem('account', '${acc.id}')" class="text-slate-400 hover:text-blue-500 text-sm"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteItem('account', '${acc.id}')" class="text-slate-400 hover:text-rose-500 text-sm"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-between">
                         <div>
-                            <h3 class="font-bold text-lg">${acc.name}</h3>
-                            <h4 class="text-2xl font-bold text-teal-600 mt-1">${formatCurrency(acc.balance)}</h4>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-teal-50 text-teal-600">${acc.type}</span>
+                            <h3 class="font-bold text-lg mt-1">${acc.name}</h3>
+                            <h4 class="text-xl font-bold text-teal-600 mt-2">${formatCurrency(acc.balance)}</h4>
                         </div>
-                        <button onclick="depositToAccountModal('${acc.id}')" class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-xl text-xs font-semibold shadow-xs flex items-center justify-center space-x-1.5">
-                            <i class="fa-solid fa-plus-circle"></i>
-                            <span>Agregar Efectivo / Fondos</span>
-                        </button>
+                        <div class="space-x-1">
+                            <button onclick="editItem('account', '${acc.id}')" class="text-slate-400 hover:text-blue-500 text-sm"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteItem('account', '${acc.id}')" class="text-slate-400 hover:text-rose-500 text-sm"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     </div>
                 `;
             });
-        }
-
-        function depositToAccountModal(accountId) {
-            const acc = appData.accounts.find(a => a.id === accountId);
-            const amount = prompt(`Agregar efectivo / fondos a la cuenta "${acc.name}". Monto a depositar:`, "1000");
-            if(amount && !isNaN(amount)) {
-                const num = Number(amount);
-                acc.balance += num;
-                appData.movements.unshift({
-                    id: 'mov_' + Date.now(),
-                    date: new Date().toISOString().slice(0,10),
-                    type: 'account_deposit',
-                    concept: `Depósito en efectivo: ${acc.name}`,
-                    category: 'Efectivo',
-                    amount: num,
-                    account: acc.name
-                });
-                saveAppData();
-                showNotification('Efectivo agregado correctamente', 'success');
-            }
         }
 
         function renderReports() {
@@ -1167,7 +1250,7 @@
                 bodyEl.innerHTML = `
                     <div><label class="block text-xs font-semibold mb-1">Nombre</label><input type="text" id="accName" value="${itemData.name || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
                     <div><label class="block text-xs font-semibold mb-1">Tipo</label><select id="accType" class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none">${['Efectivo', 'Cuenta bancaria', 'Cuenta de ahorro', 'Tarjeta de débito', 'Tarjeta de crédito'].map(t => `<option value="${t}" ${itemData.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
-                    <div><label class="block text-xs font-semibold mb-1">Saldo / Línea Disponible ($)</label><input type="number" step="0.01" id="accBalance" value="${itemData.balance || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Saldo Inicial ($)</label><input type="number" step="0.01" id="accBalance" value="${itemData.balance || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
                 `;
             }
             document.getElementById('globalModal').classList.remove('hidden');
