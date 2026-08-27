@@ -1,0 +1,189 @@
+{
+  "incomes": [
+    {
+      "id": "inc_1787854024594",
+      "name": "Sueldo Trabajo DACH",
+      "type": "Sueldo",
+      "amount": 4539.55,
+      "frequency": "Quincenal",
+      "date": "2026-08-31",
+      "description": "Pago via Nomina"
+    }
+  ],
+  "expenses": [],
+  "debts": [
+    {
+      "id": "debt_1787854360378",
+      "name": "Préstamo Personal",
+      "type": "Crédito personal",
+      "institution": "Mercado Pago ",
+      "originalAmount": 17169,
+      "remainingAmount": 7805.31,
+      "requiredPayment": 2601.77,
+      "frequency": "Mensual",
+      "deadline": "01",
+      "status": "Activa"
+    },
+    {
+      "id": "debt_1787854425697",
+      "name": "Préstamo Personal",
+      "type": "Crédito personal",
+      "institution": "Mercado Pago",
+      "originalAmount": 9730,
+      "remainingAmount": 5116.02,
+      "requiredPayment": 1705.34,
+      "frequency": "Mensual",
+      "deadline": "01",
+      "status": "Activa"
+    },
+    {
+      "id": "debt_1787854509785",
+      "name": "Stori",
+      "type": "Tarjeta de crédito",
+      "institution": "Stori",
+      "originalAmount": 3457.41,
+      "remainingAmount": 3457.41,
+      "requiredPayment": 2000,
+      "deadline": "1",
+      "frequency": "Mensual",
+      "status": "Activa"
+    },
+    {
+      "id": "debt_1787854860137",
+      "name": "Prestamo DIDI",
+      "type": "Tarjeta de crédito",
+      "institution": "DIDI",
+      "originalAmount": 1000,
+      "remainingAmount": 946,
+      "requiredPayment": 359.67,
+      "frequency": "Mensual",
+      "deadline": "1",
+      "status": "Activa"
+    },
+    {
+      "id": "debt_1787855023129",
+      "name": "DIDI Prestamos",
+      "type": "Crédito personal",
+      "institution": "DIDI",
+      "originalAmount": 10982.04,
+      "remainingAmount": 6406.19,
+      "requiredPayment": 915.17,
+      "frequency": "Mensual",
+      "deadline": "15 y 30",
+      "status": "Activa"
+    }
+  ],
+  "savings": [
+    {
+      "id": "sav_1787864908227",
+      "name": "Emergencias",
+      "goalAmount": 25000,
+      "currentAmount": 0,
+      "monthlyContribution": 500,
+      "history": []
+    }
+  ],
+  "budgets": [
+    {
+      "category": "Gasolina",
+      "limit": 500
+    },
+    {
+      "category": "Plataformas de Entretenimiento",
+      "limit": 399
+    },
+    {
+      "category": "Recarga de Celulares",
+      "limit": 300
+    },
+    {
+      "category": "Internet",
+      "limit": 289
+    },
+    {
+      "category": "Agua",
+      "limit": 250
+    },
+    {
+      "category": "Despensa",
+      "limit": 1000
+    },
+    {
+      "category": "Comida Trabajo",
+      "limit": 2000
+    },
+    {
+      "category": "Cenas",
+      "limit": 1000
+    },
+    {
+      "category": "Otros",
+      "limit": 500
+    },
+    {
+      "category": "Higiene y Salud",
+      "limit": 1000
+    }
+  ],
+  "accounts": [
+    {
+      "id": "acc_1",
+      "name": "Efectivo",
+      "type": "Efectivo",
+      "balance": 0
+    },
+    {
+      "id": "acc_1787865474659",
+      "name": "DIDI Efectivo",
+      "type": "Cuenta de ahorro",
+      "balance": 3018.9
+    },
+    {
+      "id": "acc_1787865530773",
+      "name": "Mercado Pago Efectivo",
+      "type": "Tarjeta de débito",
+      "balance": 106.25
+    },
+    {
+      "id": "acc_1787866936170",
+      "name": "Stori Tarjeta Crédito",
+      "type": "Tarjeta de crédito",
+      "balance": 2542.59
+    },
+    {
+      "id": "acc_1787866962882",
+      "name": "DIDI Crédito Personal",
+      "type": "Tarjeta de crédito",
+      "balance": 6475
+    },
+    {
+      "id": "acc_1787867002618",
+      "name": "Mercado Pago Crédito Personal",
+      "type": "Tarjeta de crédito",
+      "balance": 1034
+    },
+    {
+      "id": "acc_1787867018210",
+      "name": "Mercado Pago Crédito personal",
+      "type": "Tarjeta de crédito",
+      "balance": 1740
+    },
+    {
+      "id": "acc_1787867321705",
+      "name": "Efectivo Ahorro",
+      "type": "Cuenta bancaria",
+      "balance": 1400
+    }
+  ],
+  "movements": [
+    {
+      "id": "mov_1787854024594",
+      "date": "2026-08-31",
+      "type": "income",
+      "concept": "Sueldo Trabajo DACH",
+      "category": "Sueldo",
+      "amount": 4539.55,
+      "account": "Cuenta Principal"
+    }
+  ]
+}
