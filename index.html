@@ -1367,14 +1367,13 @@
                 showNotification('Abono registrado', 'success');
             }
         }
-// --- GEMINI API INTEGRATIONS ---
+// --- GEMINI API ---
 async function callGeminiAPI(promptText) {
 
-    // IMPORTANTE: coloca aquí tu nueva API Key
     const apiKey = "AQ.Ab8RN6KLN9sp5jBu2bRbTk_DtQLSCf_InRQ5B7k4vsnow14J7w";
 
-    // Modelo estable actual de Gemini
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const url =
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
     const payload = {
         contents: [
@@ -1389,7 +1388,7 @@ async function callGeminiAPI(promptText) {
         systemInstruction: {
             parts: [
                 {
-                    text: "Eres un asesor financiero personal experto, amigable y directo. Analiza los datos financieros proporcionados en formato JSON y da consejos claros, prácticos y motivadores en español."
+                    text: "Eres un asesor financiero personal experto, amigable y directo. Analiza los datos financieros proporcionados y proporciona recomendaciones claras, prácticas y responsables en español."
                 }
             ]
         }
@@ -1399,38 +1398,40 @@ async function callGeminiAPI(promptText) {
 
         const response = await fetch(url, {
             method: "POST",
+
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "x-goog-api-key": apiKey
             },
+
             body: JSON.stringify(payload)
         });
 
-        // Obtener respuesta aunque sea un error
         const result = await response.json();
+
+        console.log("Respuesta de Gemini:", result);
 
         if (!response.ok) {
 
-            console.error("Error Gemini:", result);
-
-            const mensaje =
+            const errorMessage =
                 result?.error?.message ||
                 "Error desconocido de Gemini";
 
-            throw new Error(mensaje);
+            throw new Error(errorMessage);
         }
 
         const text =
             result?.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!text) {
-            throw new Error("Gemini no devolvió contenido.");
+            throw new Error("Gemini no devolvió ningún texto.");
         }
 
         return text;
 
     } catch (error) {
 
-        console.error("Error al conectar con Gemini:", error);
+        console.error("Gemini API:", error);
 
         return `❌ No fue posible conectar con el Asesor IA.
 
@@ -1438,7 +1439,6 @@ Detalles técnicos:
 ${error.message}`;
     }
 }
-
         async function askGeminiFinancialAdvice() {
             const container = document.getElementById('aiResponseContainer');
             container.innerText = "✨ Analizando tus finanzas con Inteligencia Artificial...";
