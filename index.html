@@ -1367,13 +1367,12 @@
                 showNotification('Abono registrado', 'success');
             }
         }
-// --- GEMINI API ---
 async function callGeminiAPI(promptText) {
 
     const apiKey = "AQ.Ab8RN6KLN9sp5jBu2bRbTk_DtQLSCf_InRQ5B7k4vsnow14J7w";
 
     const url =
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
 
     const payload = {
         contents: [
@@ -1384,40 +1383,29 @@ async function callGeminiAPI(promptText) {
                     }
                 ]
             }
-        ],
-        systemInstruction: {
-            parts: [
-                {
-                    text: "Eres un asesor financiero personal experto, amigable y directo. Analiza los datos financieros proporcionados y proporciona recomendaciones claras, prácticas y responsables en español."
-                }
-            ]
-        }
+        ]
     };
 
     try {
 
         const response = await fetch(url, {
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json",
-                "x-goog-api-key": apiKey
+                "X-goog-api-key": apiKey
             },
-
             body: JSON.stringify(payload)
         });
 
         const result = await response.json();
 
-        console.log("Respuesta de Gemini:", result);
+        console.log("Respuesta completa de Gemini:", result);
 
         if (!response.ok) {
-
-            const errorMessage =
+            throw new Error(
                 result?.error?.message ||
-                "Error desconocido de Gemini";
-
-            throw new Error(errorMessage);
+                `Error HTTP ${response.status}`
+            );
         }
 
         const text =
@@ -1431,7 +1419,7 @@ async function callGeminiAPI(promptText) {
 
     } catch (error) {
 
-        console.error("Gemini API:", error);
+        console.error("Error Gemini:", error);
 
         return `❌ No fue posible conectar con el Asesor IA.
 
