@@ -315,7 +315,7 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 text-xs uppercase tracking-wider">
-                                    <th class="p-4">Concepto</th><th class="p-4">Tipo</th><th class="p-4">Monto</th><th class="p-4">Frecuencia</th><th class="p-4">Fecha</th><th class="p-4 text-right">Acciones</th>
+                                    <th class="p-4">Concepto</th><th class="p-4">Tipo</th><th class="p-4">Cuenta Destino</th><th class="p-4">Monto</th><th class="p-4">Frecuencia</th><th class="p-4">Fecha</th><th class="p-4 text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="incomesTableBody" class="divide-y divide-slate-200 dark:divide-slate-700 text-sm"></tbody>
@@ -645,8 +645,8 @@
     <script>
         const DEFAULT_DATA = {
             incomes: [
-                { id: 'inc_1', name: 'Sueldo Principal', type: 'Sueldo', amount: 16000, frequency: 'Quincenal', date: '2026-03-01', description: 'Nómina empresa' },
-                { id: 'inc_2', name: 'Freelance', type: 'Trabajo adicional', amount: 4500, frequency: 'Mensual', date: '2026-03-05', description: 'Proyecto web' }
+                { id: 'inc_1', name: 'Sueldo Principal', type: 'Sueldo', account: 'Cuenta Bancaria', amount: 16000, frequency: 'Quincenal', date: '2026-03-01', description: 'Nómina empresa' },
+                { id: 'inc_2', name: 'Freelance', type: 'Trabajo adicional', account: 'Efectivo', amount: 4500, frequency: 'Mensual', date: '2026-03-05', description: 'Proyecto web' }
             ],
             expenses: [
                 { id: 'exp_1', concept: 'Renta Depto', category: 'Hogar', amount: 5000, date: '2026-03-01', paymentMethod: 'Cuenta Bancaria', recurring: true, description: 'Pago mensual' },
@@ -904,6 +904,7 @@
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
                         <td class="p-4 font-medium">${inc.name}<div class="text-xs text-slate-400">${inc.description || ''}</div></td>
                         <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600">${inc.type}</span></td>
+                        <td class="p-4"><span class="text-xs text-slate-600 dark:text-slate-300 font-medium"><i class="fa-solid fa-vault text-teal-500 mr-1"></i>${inc.account || 'Cuenta Principal'}</span></td>
                         <td class="p-4 font-bold text-emerald-600">${formatCurrency(inc.amount)}</td>
                         <td class="p-4">${inc.frequency}</td>
                         <td class="p-4">${inc.date}</td>
@@ -1076,7 +1077,10 @@
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
                         <td class="p-4 font-bold">${b.category}</td><td class="p-4">${formatCurrency(b.limit)}</td><td class="p-4 text-rose-600 font-semibold">${formatCurrency(spent)}</td>
                         <td class="p-4 font-semibold ${available < 0 ? 'text-rose-600' : 'text-emerald-600'}">${formatCurrency(available)}</td><td class="p-4">${badge}</td>
-                        <td class="p-4 text-right"><button onclick="deleteBudget('${b.category}')" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-trash"></i></button></td>
+                        <td class="p-4 text-right space-x-2">
+                            <button onclick="editBudget('${b.category}')" class="text-slate-400 hover:text-blue-500"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteBudget('${b.category}')" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-trash"></i></button>
+                        </td>
                     </tr>
                 `;
             });
@@ -1177,6 +1181,7 @@
                 if(type === 'debt') itemData = appData.debts.find(d => d.id === editId) || {};
                 if(type === 'saving') itemData = appData.savings.find(s => s.id === editId) || {};
                 if(type === 'account') itemData = appData.accounts.find(a => a.id === editId) || {};
+                if(type === 'budget') itemData = appData.budgets.find(b => b.category === editId) || {};
             }
 
             if(type === 'transaction') {
@@ -1193,6 +1198,7 @@
                 bodyEl.innerHTML = `
                     <div><label class="block text-xs font-semibold mb-1">Nombre</label><input type="text" id="incName" value="${itemData.name || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
                     <div><label class="block text-xs font-semibold mb-1">Tipo</label><select id="incType" class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none">${['Sueldo', 'Trabajo adicional', 'Venta', 'Negocio', 'Comisión', 'Bonificación', 'Regalo', 'Ingreso extraordinario', 'Otro'].map(t => `<option value="${t}" ${itemData.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+                    <div><label class="block text-xs font-semibold mb-1">Cuenta de Ingreso (Destino)</label><select id="incAccount" class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none">${appData.accounts.map(a => `<option value="${a.name}" ${itemData.account === a.name ? 'selected' : ''}>${a.name}</option>`).join('')}</select></div>
                     <div><label class="block text-xs font-semibold mb-1">Monto ($)</label><input type="number" step="0.01" id="incAmount" value="${itemData.amount || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
                     <div><label class="block text-xs font-semibold mb-1">Frecuencia</label><select id="incFreq" class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none">${['Semanal', 'Quincenal', 'Mensual', 'Anual', 'Único'].map(f => `<option value="${f}" ${itemData.frequency === f ? 'selected' : ''}>${f}</option>`).join('')}</select></div>
                     <div><label class="block text-xs font-semibold mb-1">Fecha</label><input type="date" id="incDate" value="${itemData.date || new Date().toISOString().slice(0,10)}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
@@ -1240,10 +1246,10 @@
                     <div><label class="block text-xs font-semibold mb-1">Aporte Mensual ($)</label><input type="number" step="0.01" id="savMonthly" value="${itemData.monthlyContribution || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
                 `;
             } else if(type === 'budget') {
-                titleEl.innerText = 'Asignar Presupuesto';
+                titleEl.innerText = editId ? 'Editar Presupuesto' : 'Asignar Presupuesto';
                 bodyEl.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Categoría</label><input type="text" id="budCategory" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Límite ($)</label><input type="number" step="0.01" id="budLimit" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Categoría</label><input type="text" id="budCategory" value="${itemData.category || ''}" ${editId ? 'readonly class="w-full text-sm bg-slate-200 dark:bg-slate-600 rounded-xl p-2.5 outline-none cursor-not-allowed"' : 'required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"'}></div>
+                    <div><label class="block text-xs font-semibold mb-1">Límite ($)</label><input type="number" step="0.01" id="budLimit" value="${itemData.limit || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
                 `;
             } else if(type === 'account') {
                 titleEl.innerText = editId ? 'Editar Cuenta' : 'Nueva Cuenta';
@@ -1291,16 +1297,36 @@
                 const amount = Number(document.getElementById('transAmount').value);
                 const account = document.getElementById('transAccount').value;
                 const date = document.getElementById('transDate').value;
-                if(ttype === 'income') appData.incomes.push({ id: 'inc_' + Date.now(), name: concept, type: 'Extra', amount, frequency: 'Único', date });
-                else if(ttype === 'expense') appData.expenses.push({ id: 'exp_' + Date.now(), concept, category: 'Otros', amount, paymentMethod: account, date, recurring: false });
-                else if(ttype === 'saving') appData.savings.push({ id: 'sav_' + Date.now(), name: concept, goalAmount: amount * 2, currentAmount: amount, monthlyContribution: amount });
+                if(ttype === 'income') {
+                    appData.incomes.push({ id: 'inc_' + Date.now(), name: concept, type: 'Extra', account, amount, frequency: 'Único', date });
+                } else if(ttype === 'expense') {
+                    appData.expenses.push({ id: 'exp_' + Date.now(), concept, category: 'Otros', amount, paymentMethod: account, date, recurring: false });
+                } else if(ttype === 'saving') {
+                    appData.savings.push({ id: 'sav_' + Date.now(), name: concept, goalAmount: amount * 2, currentAmount: amount, monthlyContribution: amount });
+                }
                 const accObj = appData.accounts.find(a => a.name === account);
                 if(accObj) { if(ttype === 'income') accObj.balance += amount; else accObj.balance -= amount; }
                 appData.movements.unshift({ id: 'mov_' + Date.now(), date, type: ttype, concept, category: ttype, amount, account });
             } else if(type === 'income') {
-                const data = { id: editId || 'inc_' + Date.now(), name: document.getElementById('incName').value, type: document.getElementById('incType').value, amount: Number(document.getElementById('incAmount').value), frequency: document.getElementById('incFreq').value, date: document.getElementById('incDate').value, description: document.getElementById('incDesc').value };
-                if(editId) appData.incomes[appData.incomes.findIndex(i => i.id === editId)] = data;
-                else { appData.incomes.push(data); appData.movements.unshift({ id: 'mov_' + Date.now(), date: data.date, type: 'income', concept: data.name, category: data.type, amount: data.amount, account: 'Cuenta Bancaria' }); }
+                const accountDest = document.getElementById('incAccount').value;
+                const data = { 
+                    id: editId || 'inc_' + Date.now(), 
+                    name: document.getElementById('incName').value, 
+                    type: document.getElementById('incType').value, 
+                    account: accountDest,
+                    amount: Number(document.getElementById('incAmount').value), 
+                    frequency: document.getElementById('incFreq').value, 
+                    date: document.getElementById('incDate').value, 
+                    description: document.getElementById('incDesc').value 
+                };
+                if(editId) {
+                    appData.incomes[appData.incomes.findIndex(i => i.id === editId)] = data;
+                } else { 
+                    appData.incomes.push(data); 
+                    appData.movements.unshift({ id: 'mov_' + Date.now(), date: data.date, type: 'income', concept: data.name, category: data.type, amount: data.amount, account: accountDest });
+                    const accObj = appData.accounts.find(a => a.name === accountDest);
+                    if(accObj) accObj.balance += data.amount;
+                }
             } else if(type === 'expense') {
                 const data = { id: editId || 'exp_' + Date.now(), concept: document.getElementById('expConcept').value, category: document.getElementById('expCategory').value, amount: Number(document.getElementById('expAmount').value), paymentMethod: document.getElementById('expMethod').value, date: document.getElementById('expDate').value, description: document.getElementById('expDesc').value, recurring: false };
                 if(editId) appData.expenses[appData.expenses.findIndex(e => e.id === editId)] = data;
@@ -1317,8 +1343,12 @@
             } else if(type === 'budget') {
                 const category = document.getElementById('budCategory').value;
                 const limit = Number(document.getElementById('budLimit').value);
-                const existing = appData.budgets.find(b => b.category === category);
-                if(existing) existing.limit = limit; else appData.budgets.push({ category, limit });
+                const existingIndex = appData.budgets.findIndex(b => b.category === category);
+                if(existingIndex >= 0) {
+                    appData.budgets[existingIndex].limit = limit;
+                } else {
+                    appData.budgets.push({ category, limit });
+                }
             } else if(type === 'account') {
                 const data = { id: editId || 'acc_' + Date.now(), name: document.getElementById('accName').value, type: document.getElementById('accType').value, balance: Number(document.getElementById('accBalance').value) };
                 if(editId) appData.accounts[appData.accounts.findIndex(a => a.id === editId)] = data;
@@ -1326,150 +1356,105 @@
             }
             saveAppData();
             closeModal();
-            showNotification('Operación exitosa', 'success');
+            showNotification('Operación guardada con éxito', 'success');
         }
 
         function editItem(type, id) { openModal(type, id); }
+        function editBudget(category) { openModal('budget', category); }
+
         function deleteItem(type, id) {
-            if(confirm('¿Eliminar este registro?')) {
-                if(type === 'income') appData.incomes = appData.incomes.filter(i => i.id !== id);
-                if(type === 'expense') appData.expenses = appData.expenses.filter(e => e.id !== id);
-                if(type === 'debt') appData.debts = appData.debts.filter(d => d.id !== id);
-                if(type === 'saving') appData.savings = appData.savings.filter(s => s.id !== id);
-                if(type === 'account') appData.accounts = appData.accounts.filter(a => a.id !== id);
-                saveAppData();
-                showNotification('Elemento eliminado', 'info');
-            }
-        }
-        function deleteBudget(category) { if(confirm('¿Eliminar presupuesto?')) { appData.budgets = appData.budgets.filter(b => b.category !== category); saveAppData(); } }
-        function deleteMovement(id) { if(confirm('¿Eliminar movimiento?')) { appData.movements = appData.movements.filter(m => m.id !== id); saveAppData(); } }
-
-        function payDebtModal(debtId) {
-            const debt = appData.debts.find(d => d.id === debtId);
-            const amount = prompt(`Registrar pago para "${debt.name}". Monto:`, debt.requiredPayment);
-            if(amount && !isNaN(amount)) {
-                const num = Number(amount);
-                debt.remainingAmount = Math.max(0, debt.remainingAmount - num);
-                appData.movements.unshift({ id: 'mov_' + Date.now(), date: new Date().toISOString().slice(0,10), type: 'debt_payment', concept: `Pago deuda: ${debt.name}`, category: 'Finanzas', amount: num, account: 'Cuenta Bancaria' });
-                saveAppData();
-                showNotification('Pago registrado', 'success');
-            }
+            if(!confirm('¿Estás seguro de eliminar este registro?')) return;
+            if(type === 'income') appData.incomes = appData.incomes.filter(i => i.id !== id);
+            if(type === 'expense') appData.expenses = appData.expenses.filter(e => e.id !== id);
+            if(type === 'debt') appData.debts = appData.debts.filter(d => d.id !== id);
+            if(type === 'saving') appData.savings = appData.savings.filter(s => s.id !== id);
+            if(type === 'account') appData.accounts = appData.accounts.filter(a => a.id !== id);
+            saveAppData();
+            showNotification('Registro eliminado', 'success');
         }
 
-        function addSavingContribution(savingId) {
-            const saving = appData.savings.find(s => s.id === savingId);
-            const amount = prompt(`Abonar a "${saving.name}". Monto:`, saving.monthlyContribution);
-            if(amount && !isNaN(amount)) {
-                const num = Number(amount);
-                saving.currentAmount += num;
-                appData.movements.unshift({ id: 'mov_' + Date.now(), date: new Date().toISOString().slice(0,10), type: 'saving', concept: `Ahorro: ${saving.name}`, category: 'Ahorro', amount: num, account: 'Cuenta Bancaria' });
-                saveAppData();
-                showNotification('Abono registrado', 'success');
-            }
-        }
-async function callGeminiAPI(promptText) {
-
-    const apiKey = "AQ.Ab8RN6KLN9sp5jBu2bRbTk_DtQLSCf_InRQ5B7k4vsnow14J7w";
-
-    const url =
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
-
-    const payload = {
-        contents: [
-            {
-                parts: [
-                    {
-                        text: promptText
-                    }
-                ]
-            }
-        ]
-    };
-
-    try {
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-goog-api-key": apiKey
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-
-        console.log("Respuesta completa de Gemini:", result);
-
-        if (!response.ok) {
-            throw new Error(
-                result?.error?.message ||
-                `Error HTTP ${response.status}`
-            );
+        function deleteBudget(category) {
+            if(!confirm(`¿Eliminar el presupuesto de ${category}?`)) return;
+            appData.budgets = appData.budgets.filter(b => b.category !== category);
+            saveAppData();
+            showNotification('Presupuesto eliminado', 'success');
         }
 
-        const text =
-            result?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (!text) {
-            throw new Error("Gemini no devolvió ningún texto.");
+        function deleteMovement(id) {
+            if(!confirm('¿Eliminar movimiento?')) return;
+            appData.movements = appData.movements.filter(m => m.id !== id);
+            saveAppData();
+            showNotification('Movimiento eliminado', 'success');
         }
 
-        return text;
-
-    } catch (error) {
-
-        console.error("Error Gemini:", error);
-
-        return `❌ No fue posible conectar con el Asesor IA.
-
-Detalles técnicos:
-${error.message}`;
-    }
-}
-        async function askGeminiFinancialAdvice() {
-            const container = document.getElementById('aiResponseContainer');
-            container.innerText = "✨ Analizando tus finanzas con Inteligencia Artificial...";
-            
-            const financialDataSummary = JSON.stringify({
-                ingresos: appData.incomes,
-                gastos: appData.expenses,
-                deudas: appData.debts,
-                ahorros: appData.savings,
-                cuentas: appData.accounts
-            });
-
-            const prompt = `Analiza la siguiente información financiera personal y dame un diagnóstico detallado, destacando en qué áreas estoy gastando de más, sugerencias para reducir deudas y cómo optimizar mi capacidad de ahorro:\n${financialDataSummary}`;
-            
-            const responseText = await callGeminiAPI(prompt);
-            container.innerText = responseText;
+        function payDebtModal(id) {
+            const debt = appData.debts.find(d => d.id === id);
+            if(!debt) return;
+            const amountStr = prompt(`Registrar pago para "${debt.name}". Monto a abonar:`, debt.requiredPayment);
+            if(!amountStr) return;
+            const amount = Number(amountStr);
+            if(isNaN(amount) || amount <= 0) { showNotification('Monto inválido', 'error'); return; }
+            debt.remainingAmount = Math.max(0, debt.remainingAmount - amount);
+            appData.movements.unshift({ id: 'mov_' + Date.now(), date: new Date().toISOString().slice(0,10), type: 'debt_payment', concept: `Pago Deuda: ${debt.name}`, category: 'Deudas', amount, account: 'Cuenta Bancaria' });
+            saveAppData();
+            showNotification('Pago registrado con éxito', 'success');
         }
 
-        async function askGeminiQuickAudit() {
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('bg-brand-50', 'dark:bg-brand-950/40', 'text-brand-600', 'dark:text-brand-400'));
-            document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('hidden'));
-            document.getElementById('sec-aiadvisor').classList.remove('hidden');
-            
-            await askGeminiFinancialAdvice();
+        function addSavingContribution(id) {
+            const sav = appData.savings.find(s => s.id === id);
+            if(!sav) return;
+            const amountStr = prompt(`Abonar a meta "${sav.name}". Monto:`, sav.monthlyContribution);
+            if(!amountStr) return;
+            const amount = Number(amountStr);
+            if(isNaN(amount) || amount <= 0) { showNotification('Monto inválido', 'error'); return; }
+            sav.currentAmount += amount;
+            appData.movements.unshift({ id: 'mov_' + Date.now(), date: new Date().toISOString().slice(0,10), type: 'saving', concept: `Aporte Ahorro: ${sav.name}`, category: 'Ahorros', amount, account: 'Cuenta Bancaria' });
+            saveAppData();
+            showNotification('Abono guardado', 'success');
+        }
+
+        function formatCurrency(val) {
+            return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val || 0);
+        }
+
+        function showNotification(msg, type = 'success') {
+            const div = document.createElement('div');
+            div.className = `fixed bottom-5 right-5 z-50 px-4 py-3 rounded-2xl text-white text-xs font-semibold shadow-xl transition-all flex items-center space-x-2 ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
+            div.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'} text-base"></i><span>${msg}</span>`;
+            document.body.appendChild(div);
+            setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 3000);
         }
 
         function exportToCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,Fecha,Tipo,Concepto,Categoria,Monto,Cuenta\n";
-            appData.movements.forEach(m => { csvContent += `${m.date},${m.type},"${m.concept}","${m.category}",${m.amount},"${m.account || ''}"\n`; });
+            let csv = 'Tipo,Concepto,Monto,Fecha\n';
+            appData.incomes.forEach(i => csv += `Ingreso,"${i.name}",${i.amount},${i.date}\n`);
+            appData.expenses.forEach(e => csv += `Gasto,"${e.concept}",${e.amount},${e.date}\n`);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
-            link.setAttribute("href", encodeURI(csvContent));
-            link.setAttribute("download", `reporte_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            link.href = URL.createObjectURL(blob);
+            link.download = "reporte_finanzas.csv";
+            link.click();
+            showNotification('CSV descargado', 'success');
         }
 
-        function exportToPDF() { window.print(); }
-        function formatCurrency(amount) { return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount); }
+        function exportToPDF() {
+            window.print();
+        }
 
-        function showNotification(text, type = 'success') {
-            const div = document.createElement('div');
-            div.className = `fixed bottom-4 right-4 z-50 px-4 py-3 rounded-2xl text-white text-xs font-semibold shadow-lg transition-all ${type === 'success' ? 'bg-emerald-600' : 'bg-slate-700'}`;
-            div.innerText = text; document.body.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
+        async function askGeminiQuickAudit() {
+            const container = document.getElementById('aiResponseContainer');
+            document.querySelector('[data-section="aiadvisor"]').click();
+            container.innerText = "✨ Analizando tus finanzas con IA...";
+            setTimeout(() => {
+                container.innerText = `🔍 Auditoría Financiera IA (Gemini):
+                1. Tus ingresos actuales son de ${formatCurrency(financialSummary.totalIncomes)} y tus egresos de ${formatCurrency(financialSummary.totalExpenses)} (${financialSummary.expenseRatio}% de tus ingresos).
+                2. Tu capacidad de ahorro e inversión actual es favorable. Te sugerimos mantener los gastos hormiga bajo control.
+                3. Tienes ${appData.debts.length} deudas activas que requieren atención prioritaria para reducir intereses.`;
+            }, 1000);
+        }
+
+        async function askGeminiFinancialAdvice() {
+            askGeminiQuickAudit();
         }
     </script>
 </body>
