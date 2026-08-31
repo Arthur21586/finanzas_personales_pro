@@ -685,6 +685,15 @@
             initApp();
         }
 
+        function showNotification(message, type = 'success') {
+            // Notificación visual simple en consola o banner temporal si es necesario
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function formatCurrency(amount) {
+            return Number(amount || 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+        }
+
         // --- SISTEMA DE AUTENTICACIÓN ---
         function handleLogin(event) {
             event.preventDefault();
@@ -1243,45 +1252,24 @@
                         <div><label class="block text-xs font-semibold mb-1">Objetivo Total ($)</label><input type="number" step="0.01" id="savGoal" value="${itemData.goalAmount || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
                         <div><label class="block text-xs font-semibold mb-1">Ahorrado Actual ($)</label><input type="number" step="0.01" id="savCurrent" value="${itemData.currentAmount || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
                     </div>
-                    <div><label class="block text-xs font-semibold mb-1">Aporte Mensual ($)</label><input type="number" step="0.01" id="savMonthly" value="${itemData.monthlyContribution || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
-                `;
-            } else if(type === 'budget') {
-                titleEl.innerText = editId ? 'Editar Presupuesto' : 'Asignar Presupuesto';
-                bodyEl.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Categoría</label><input type="text" id="budCategory" value="${itemData.category || ''}" ${editId ? 'readonly class="w-full text-sm bg-slate-200 dark:bg-slate-600 rounded-xl p-2.5 outline-none cursor-not-allowed"' : 'required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"'}></div>
-                    <div><label class="block text-xs font-semibold mb-1">Límite ($)</label><input type="number" step="0.01" id="budLimit" value="${itemData.limit || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Aporte Mensual Sugerido ($)</label><input type="number" step="0.01" id="savMonthly" value="${itemData.monthlyContribution || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
                 `;
             } else if(type === 'account') {
                 titleEl.innerText = editId ? 'Editar Cuenta' : 'Nueva Cuenta';
                 bodyEl.innerHTML = `
-                    <div><label class="block text-xs font-semibold mb-1">Nombre</label><input type="text" id="accName" value="${itemData.name || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
-                    <div><label class="block text-xs font-semibold mb-1">Tipo</label><select id="accType" class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none">${['Efectivo', 'Cuenta bancaria', 'Cuenta de ahorro', 'Tarjeta de débito', 'Tarjeta de crédito'].map(t => `<option value="${t}" ${itemData.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
-                    <div><label class="block text-xs font-semibold mb-1">Saldo Inicial ($)</label><input type="number" step="0.01" id="accBalance" value="${itemData.balance || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Nombre de la Cuenta</label><input type="text" id="accName" value="${itemData.name || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Tipo</label><select id="accType" class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none">${['Efectivo', 'Cuenta bancaria', 'Tarjeta de crédito', 'Inversión', 'Otro'].map(t => `<option value="${t}" ${itemData.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+                    <div><label class="block text-xs font-semibold mb-1">Saldo Inicial ($)</label><input type="number" step="0.01" id="accBalance" value="${itemData.balance || 0}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
+                `;
+            } else if(type === 'budget') {
+                titleEl.innerText = editId ? 'Editar Presupuesto' : 'Asignar Presupuesto';
+                bodyEl.innerHTML = `
+                    <div><label class="block text-xs font-semibold mb-1">Categoría</label><input type="text" id="budCat" value="${itemData.category || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
+                    <div><label class="block text-xs font-semibold mb-1">Límite Mensual ($)</label><input type="number" step="0.01" id="budLimit" value="${itemData.limit || ''}" required class="w-full text-sm bg-slate-100 dark:bg-slate-700 rounded-xl p-2.5 outline-none"></div>
                 `;
             }
-            document.getElementById('globalModal').classList.remove('hidden');
-            if(type === 'debt') updateDeadlinePlaceholder();
-        }
 
-        function updateDeadlinePlaceholder() {
-            const freqElem = document.getElementById('debtFreq');
-            const label = document.getElementById('deadlineLabel');
-            const input = document.getElementById('debtDeadline');
-            if(!freqElem || !label || !input) return;
-            const freq = freqElem.value;
-            if(freq === 'Semanal') {
-                label.innerText = '¿Qué día de la semana?';
-                input.placeholder = 'Ej. Lunes, Viernes, cada 7 días';
-            } else if(freq === 'Quincenal') {
-                label.innerText = '¿Qué días quincenales?';
-                input.placeholder = 'Ej. Días 15 y 30, o 14 y 28';
-            } else if(freq === 'Mensual') {
-                label.innerText = '¿Qué día exacto del mes?';
-                input.placeholder = 'Ej. Día 1, 15 o 30';
-            } else {
-                label.innerText = 'Fecha límite';
-                input.placeholder = 'Fecha específica';
-            }
+            document.getElementById('globalModal').classList.remove('hidden');
         }
 
         function closeModal() { document.getElementById('globalModal').classList.add('hidden'); }
@@ -1290,114 +1278,212 @@
             event.preventDefault();
             const type = document.getElementById('modalFormType').value;
             const editId = document.getElementById('modalEditId').value;
+            const id = editId || 'id_' + Math.random().toString(36).substr(2, 9);
 
-            if(type === 'transaction') {
-                const ttype = document.getElementById('transType').value;
+            if(type === 'income') {
+                const name = document.getElementById('incName').value;
+                const incType = document.getElementById('incType').value;
+                const account = document.getElementById('incAccount').value;
+                const amount = Number(document.getElementById('incAmount').value);
+                const frequency = document.getElementById('incFreq').value;
+                const date = document.getElementById('incDate').value;
+                const description = document.getElementById('incDesc').value;
+
+                if(editId) {
+                    const oldInc = appData.incomes.find(i => i.id === editId);
+                    if(oldInc) {
+                        // Revertir efecto anterior en cuenta
+                        const acc = appData.accounts.find(a => a.name === oldInc.account);
+                        if(acc) acc.balance -= Number(oldInc.amount);
+                    }
+                    appData.incomes = appData.incomes.filter(i => i.id !== editId);
+                }
+
+                // Aplicar nuevo ingreso a la cuenta destino
+                const targetAcc = appData.accounts.find(a => a.name === account);
+                if(targetAcc) {
+                    targetAcc.balance += amount;
+                } else if(appData.accounts.length > 0) {
+                    appData.accounts[0].balance += amount;
+                }
+
+                appData.incomes.push({ id, name, type: incType, account: targetAcc ? targetAcc.name : (appData.accounts[0] ? appData.accounts[0].name : 'Efectivo'), amount, frequency, date, description });
+                appData.movements.unshift({ id: 'mov_' + id, date, type: 'income', concept: name, category: incType, amount, account: targetAcc ? targetAcc.name : 'Efectivo' });
+
+            } else if(type === 'expense') {
+                const concept = document.getElementById('expConcept').value;
+                const category = document.getElementById('expCategory').value;
+                const amount = Number(document.getElementById('expAmount').value);
+                const paymentMethod = document.getElementById('expMethod').value;
+                const date = document.getElementById('expDate').value;
+                const description = document.getElementById('expDesc').value;
+
+                if(editId) {
+                    const oldExp = appData.expenses.find(e => e.id === editId);
+                    if(oldExp) {
+                        // Revertir efecto anterior en cuenta (sumar lo que se había restado)
+                        const acc = appData.accounts.find(a => a.name === oldExp.paymentMethod);
+                        if(acc) acc.balance += Number(oldExp.amount);
+                    }
+                    appData.expenses = appData.expenses.filter(e => e.id !== editId);
+                }
+
+                // Descontar gasto de la cuenta seleccionada
+                const targetAcc = appData.accounts.find(a => a.name === paymentMethod);
+                if(targetAcc) {
+                    targetAcc.balance -= amount;
+                } else if(appData.accounts.length > 0) {
+                    appData.accounts[0].balance -= amount;
+                }
+
+                appData.expenses.push({ id, concept, category, amount, date, paymentMethod: targetAcc ? targetAcc.name : (appData.accounts[0] ? appData.accounts[0].name : 'Efectivo'), recurring: false, description });
+                appData.movements.unshift({ id: 'mov_' + id, date, type: 'expense', concept, category, amount, account: targetAcc ? targetAcc.name : 'Efectivo' });
+
+            } else if(type === 'debt') {
+                const name = document.getElementById('debtName').value;
+                const debtType = document.getElementById('debtType').value;
+                const institution = document.getElementById('debtInst').value;
+                const originalAmount = Number(document.getElementById('debtOriginal').value);
+                const remainingAmount = Number(document.getElementById('debtRemaining').value);
+                const requiredPayment = Number(document.getElementById('debtPayment').value);
+                const frequency = document.getElementById('debtFreq').value;
+                const deadline = document.getElementById('debtDeadline').value;
+
+                if(editId) appData.debts = appData.debts.filter(d => d.id !== editId);
+                appData.debts.push({ id, name, type: debtType, institution, originalAmount, remainingAmount, requiredPayment, frequency, deadline, status: 'Activa' });
+
+            } else if(type === 'saving') {
+                const name = document.getElementById('savName').value;
+                const goalAmount = Number(document.getElementById('savGoal').value);
+                const currentAmount = Number(document.getElementById('savCurrent').value);
+                const monthlyContribution = Number(document.getElementById('savMonthly').value);
+
+                if(editId) appData.savings = appData.savings.filter(s => s.id !== editId);
+                appData.savings.push({ id, name, goalAmount, currentAmount, monthlyContribution, history: [] });
+
+            } else if(type === 'account') {
+                const name = document.getElementById('accName').value;
+                const accType = document.getElementById('accType').value;
+                const balance = Number(document.getElementById('accBalance').value);
+
+                if(editId) {
+                    const acc = appData.accounts.find(a => a.id === editId);
+                    if(acc) { acc.name = name; acc.type = accType; acc.balance = balance; }
+                } else {
+                    appData.accounts.push({ id, name, type: accType, balance });
+                }
+
+            } else if(type === 'budget') {
+                const category = document.getElementById('budCat').value;
+                const limit = Number(document.getElementById('budLimit').value);
+                const existing = appData.budgets.find(b => b.category === (editId || category));
+                if(existing) { existing.category = category; existing.limit = limit; }
+                else { appData.budgets.push({ category, limit }); }
+
+            } else if(type === 'transaction') {
+                const transType = document.getElementById('transType').value;
                 const concept = document.getElementById('transConcept').value;
                 const amount = Number(document.getElementById('transAmount').value);
                 const account = document.getElementById('transAccount').value;
                 const date = document.getElementById('transDate').value;
-                if(ttype === 'income') {
-                    appData.incomes.push({ id: 'inc_' + Date.now(), name: concept, type: 'Extra', account, amount, frequency: 'Único', date });
-                } else if(ttype === 'expense') {
-                    appData.expenses.push({ id: 'exp_' + Date.now(), concept, category: 'Otros', amount, paymentMethod: account, date, recurring: false });
-                } else if(ttype === 'saving') {
-                    appData.savings.push({ id: 'sav_' + Date.now(), name: concept, goalAmount: amount * 2, currentAmount: amount, monthlyContribution: amount });
+
+                const targetAcc = appData.accounts.find(a => a.name === account);
+                if(transType === 'income') {
+                    if(targetAcc) targetAcc.balance += amount;
+                    appData.incomes.push({ id, name: concept, type: 'General', account, amount, frequency: 'Único', date, description: '' });
+                } else if(transType === 'expense') {
+                    if(targetAcc) targetAcc.balance -= amount;
+                    appData.expenses.push({ id, concept, category: 'Varios', amount, date, paymentMethod: account, recurring: false, description: '' });
+                } else if(transType === 'saving') {
+                    if(targetAcc) targetAcc.balance -= amount;
+                    if(appData.savings.length > 0) appData.savings[0].currentAmount += amount;
                 }
-                const accObj = appData.accounts.find(a => a.name === account);
-                if(accObj) { if(ttype === 'income') accObj.balance += amount; else accObj.balance -= amount; }
-                appData.movements.unshift({ id: 'mov_' + Date.now(), date, type: ttype, concept, category: ttype, amount, account });
-            } else if(type === 'income') {
-                const accountDest = document.getElementById('incAccount').value;
-                const data = { 
-                    id: editId || 'inc_' + Date.now(), 
-                    name: document.getElementById('incName').value, 
-                    type: document.getElementById('incType').value, 
-                    account: accountDest,
-                    amount: Number(document.getElementById('incAmount').value), 
-                    frequency: document.getElementById('incFreq').value, 
-                    date: document.getElementById('incDate').value, 
-                    description: document.getElementById('incDesc').value 
-                };
-                if(editId) {
-                    appData.incomes[appData.incomes.findIndex(i => i.id === editId)] = data;
-                } else { 
-                    appData.incomes.push(data); 
-                    appData.movements.unshift({ id: 'mov_' + Date.now(), date: data.date, type: 'income', concept: data.name, category: data.type, amount: data.amount, account: accountDest });
-                    const accObj = appData.accounts.find(a => a.name === accountDest);
-                    if(accObj) accObj.balance += data.amount;
-                }
-            } else if(type === 'expense') {
-                const data = { id: editId || 'exp_' + Date.now(), concept: document.getElementById('expConcept').value, category: document.getElementById('expCategory').value, amount: Number(document.getElementById('expAmount').value), paymentMethod: document.getElementById('expMethod').value, date: document.getElementById('expDate').value, description: document.getElementById('expDesc').value, recurring: false };
-                if(editId) appData.expenses[appData.expenses.findIndex(e => e.id === editId)] = data;
-                else { appData.expenses.push(data); appData.movements.unshift({ id: 'mov_' + Date.now(), date: data.date, type: 'expense', concept: data.concept, category: data.category, amount: data.amount, account: data.paymentMethod });
-                const accObj = appData.accounts.find(a => a.name === data.paymentMethod); if(accObj) accObj.balance -= data.amount; }
-            } else if(type === 'debt') {
-                const data = { id: editId || 'debt_' + Date.now(), name: document.getElementById('debtName').value, type: document.getElementById('debtType').value, institution: document.getElementById('debtInst').value, originalAmount: Number(document.getElementById('debtOriginal').value), remainingAmount: Number(document.getElementById('debtRemaining').value), requiredPayment: Number(document.getElementById('debtPayment').value), frequency: document.getElementById('debtFreq').value, deadline: document.getElementById('debtDeadline').value, status: 'Activa' };
-                if(editId) appData.debts[appData.debts.findIndex(d => d.id === editId)] = data;
-                else appData.debts.push(data);
-            } else if(type === 'saving') {
-                const data = { id: editId || 'sav_' + Date.now(), name: document.getElementById('savName').value, goalAmount: Number(document.getElementById('savGoal').value), currentAmount: Number(document.getElementById('savCurrent').value), monthlyContribution: Number(document.getElementById('savMonthly').value), history: [] };
-                if(editId) appData.savings[appData.savings.findIndex(s => s.id === editId)] = data;
-                else appData.savings.push(data);
-            } else if(type === 'budget') {
-                const category = document.getElementById('budCategory').value;
-                const limit = Number(document.getElementById('budLimit').value);
-                const existingIndex = appData.budgets.findIndex(b => b.category === category);
-                if(existingIndex >= 0) {
-                    appData.budgets[existingIndex].limit = limit;
-                } else {
-                    appData.budgets.push({ category, limit });
-                }
-            } else if(type === 'account') {
-                const data = { id: editId || 'acc_' + Date.now(), name: document.getElementById('accName').value, type: document.getElementById('accType').value, balance: Number(document.getElementById('accBalance').value) };
-                if(editId) appData.accounts[appData.accounts.findIndex(a => a.id === editId)] = data;
-                else appData.accounts.push(data);
+                appData.movements.unshift({ id: 'mov_' + id, date, type: transType, concept, category: transType === 'income' ? 'Ingreso' : 'Gasto', amount, account });
             }
-            saveAppData();
+
             closeModal();
-            showNotification('Operación guardada con éxito', 'success');
+            saveAppData();
+            showNotification('Operación guardada correctamente', 'success');
         }
 
         function editItem(type, id) { openModal(type, id); }
-        function editBudget(category) { openModal('budget', category); }
 
         function deleteItem(type, id) {
-            if(!confirm('¿Estás seguro de eliminar este registro?')) return;
-            if(type === 'income') appData.incomes = appData.incomes.filter(i => i.id !== id);
-            if(type === 'expense') appData.expenses = appData.expenses.filter(e => e.id !== id);
-            if(type === 'debt') appData.debts = appData.debts.filter(d => d.id !== id);
-            if(type === 'saving') appData.savings = appData.savings.filter(s => s.id !== id);
-            if(type === 'account') appData.accounts = appData.accounts.filter(a => a.id !== id);
-            saveAppData();
-            showNotification('Registro eliminado', 'success');
-        }
+            if(!confirm('¿Estás seguro de eliminar este elemento?')) return;
 
-        function deleteBudget(category) {
-            if(!confirm(`¿Eliminar el presupuesto de ${category}?`)) return;
-            appData.budgets = appData.budgets.filter(b => b.category !== category);
+            if(type === 'income') {
+                const inc = appData.incomes.find(i => i.id === id);
+                if(inc) {
+                    // Revertir (restar) de la cuenta el ingreso eliminado
+                    const acc = appData.accounts.find(a => a.name === inc.account);
+                    if(acc) {
+                        acc.balance -= Number(inc.amount);
+                    }
+                }
+                appData.incomes = appData.incomes.filter(i => i.id !== id);
+                appData.movements = appData.movements.filter(m => m.id !== 'mov_' + id && m.concept !== (inc ? inc.name : ''));
+            } else if(type === 'expense') {
+                const exp = appData.expenses.find(e => e.id === id);
+                if(exp) {
+                    // Revertir (sumar de vuelta) a la cuenta el gasto eliminado
+                    const acc = appData.accounts.find(a => a.name === exp.paymentMethod);
+                    if(acc) {
+                        acc.balance += Number(exp.amount);
+                    }
+                }
+                appData.expenses = appData.expenses.filter(e => e.id !== id);
+                appData.movements = appData.movements.filter(m => m.id !== 'mov_' + id && m.concept !== (exp ? exp.concept : ''));
+            } else if(type === 'debt') {
+                appData.debts = appData.debts.filter(d => d.id !== id);
+            } else if(type === 'saving') {
+                appData.savings = appData.savings.filter(s => s.id !== id);
+            } else if(type === 'account') {
+                appData.accounts = appData.accounts.filter(a => a.id !== id);
+            }
+
             saveAppData();
-            showNotification('Presupuesto eliminado', 'success');
+            showNotification('Elemento eliminado', 'success');
         }
 
         function deleteMovement(id) {
-            if(!confirm('¿Eliminar movimiento?')) return;
+            if(!confirm('¿Eliminar este movimiento?')) return;
             appData.movements = appData.movements.filter(m => m.id !== id);
             saveAppData();
             showNotification('Movimiento eliminado', 'success');
         }
 
+        function deleteBudget(category) {
+            if(!confirm('¿Eliminar presupuesto?')) return;
+            appData.budgets = appData.budgets.filter(b => b.category !== category);
+            saveAppData();
+        }
+
+        function editBudget(category) { openModal('budget', category); }
+
         function payDebtModal(id) {
             const debt = appData.debts.find(d => d.id === id);
             if(!debt) return;
-            const amountStr = prompt(`Registrar pago para "${debt.name}". Monto a abonar:`, debt.requiredPayment);
+            const amountStr = prompt(`Registrar pago para "${debt.name}". Monto sugerido:`, debt.requiredPayment);
             if(!amountStr) return;
             const amount = Number(amountStr);
-            if(isNaN(amount) || amount <= 0) { showNotification('Monto inválido', 'error'); return; }
+            if(isNaN(amount) || amount <= 0) return;
+
             debt.remainingAmount = Math.max(0, debt.remainingAmount - amount);
-            appData.movements.unshift({ id: 'mov_' + Date.now(), date: new Date().toISOString().slice(0,10), type: 'debt_payment', concept: `Pago Deuda: ${debt.name}`, category: 'Deudas', amount, account: 'Cuenta Bancaria' });
+            // Descontar pago de cuenta principal o efectivo
+            if(appData.accounts.length > 0) appData.accounts[0].balance -= amount;
+
+            appData.movements.unshift({
+                id: 'mov_debt_' + Math.random().toString(36).substr(2,9),
+                date: new Date().toISOString().slice(0,10),
+                type: 'debt_payment',
+                concept: `Pago deuda: ${debt.name}`,
+                category: 'Deudas',
+                amount,
+                account: appData.accounts[0] ? appData.accounts[0].name : 'Efectivo'
+            });
+
             saveAppData();
-            showNotification('Pago registrado con éxito', 'success');
+            showNotification('Pago de deuda registrado con éxito', 'success');
         }
 
         function addSavingContribution(id) {
@@ -1406,55 +1492,74 @@
             const amountStr = prompt(`Abonar a meta "${sav.name}". Monto:`, sav.monthlyContribution);
             if(!amountStr) return;
             const amount = Number(amountStr);
-            if(isNaN(amount) || amount <= 0) { showNotification('Monto inválido', 'error'); return; }
+            if(isNaN(amount) || amount <= 0) return;
+
             sav.currentAmount += amount;
-            appData.movements.unshift({ id: 'mov_' + Date.now(), date: new Date().toISOString().slice(0,10), type: 'saving', concept: `Aporte Ahorro: ${sav.name}`, category: 'Ahorros', amount, account: 'Cuenta Bancaria' });
+            if(appData.accounts.length > 0) appData.accounts[0].balance -= amount;
+
+            appData.movements.unshift({
+                id: 'mov_sav_' + Math.random().toString(36).substr(2,9),
+                date: new Date().toISOString().slice(0,10),
+                type: 'saving',
+                concept: `Ahorro: ${sav.name}`,
+                category: 'Ahorros',
+                amount,
+                account: appData.accounts[0] ? appData.accounts[0].name : 'Efectivo'
+            });
+
             saveAppData();
             showNotification('Abono guardado', 'success');
         }
 
-        function formatCurrency(val) {
-            return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val || 0);
-        }
-
-        function showNotification(msg, type = 'success') {
-            const div = document.createElement('div');
-            div.className = `fixed bottom-5 right-5 z-50 px-4 py-3 rounded-2xl text-white text-xs font-semibold shadow-xl transition-all flex items-center space-x-2 ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
-            div.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'} text-base"></i><span>${msg}</span>`;
-            document.body.appendChild(div);
-            setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 3000);
-        }
-
         function exportToCSV() {
-            let csv = 'Tipo,Concepto,Monto,Fecha\n';
-            appData.incomes.forEach(i => csv += `Ingreso,"${i.name}",${i.amount},${i.date}\n`);
-            appData.expenses.forEach(e => csv += `Gasto,"${e.concept}",${e.amount},${e.date}\n`);
+            let csv = 'Tipo,Concepto,Monto,Fecha,Cuenta/Metodo\n';
+            appData.movements.forEach(m => {
+                csv += `${m.type},"${m.concept}",${m.amount},${m.date},"${m.account || ''}"\n`;
+            });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "reporte_finanzas.csv";
+            link.download = "reporte_movimientos.csv";
             link.click();
-            showNotification('CSV descargado', 'success');
+            showNotification('Reporte CSV descargado', 'success');
         }
 
         function exportToPDF() {
             window.print();
         }
 
-        async function askGeminiQuickAudit() {
+        async function askGeminiFinancialAdvice() {
             const container = document.getElementById('aiResponseContainer');
-            document.querySelector('[data-section="aiadvisor"]').click();
-            container.innerText = "✨ Analizando tus finanzas con IA...";
+            container.innerHTML = '🤖 Analizando tus finanzas con Inteligencia Artificial... Por favor espera un momento.';
+            
             setTimeout(() => {
-                container.innerText = `🔍 Auditoría Financiera IA (Gemini):
-                1. Tus ingresos actuales son de ${formatCurrency(financialSummary.totalIncomes)} y tus egresos de ${formatCurrency(financialSummary.totalExpenses)} (${financialSummary.expenseRatio}% de tus ingresos).
-                2. Tu capacidad de ahorro e inversión actual es favorable. Te sugerimos mantener los gastos hormiga bajo control.
-                3. Tienes ${appData.debts.length} deudas activas que requieren atención prioritaria para reducir intereses.`;
-            }, 1000);
+                const totalInc = financialSummary.totalIncomes;
+                const totalExp = financialSummary.totalExpenses;
+                const savings = financialSummary.totalSavings;
+                const debts = financialSummary.totalDebts;
+                const ratio = financialSummary.expenseRatio;
+
+                let advice = `Análisis Financiero Inteligente (Gemini AI):\n\n`;
+                advice += `• Balance general: Tus ingresos totales ascienden a ${formatCurrency(totalInc)} y tus gastos a ${formatCurrency(totalExp)} (${ratio}% de tasa de gasto).\n`;
+                if(ratio > 75) {
+                    advice += `• Alerta de Gastos: Estás destinando un porcentaje elevado de tus ingresos a egresos. Te sugiero revisar categorías como entretenimiento y hormiga para liberar al menos un 15% adicional hacia ahorro o fondo de emergencia.\n`;
+                } else {
+                    advice += `• Excelente control: Mantienes una tasa de gasto saludable. Tienes buen margen para potenciar tus metas de ahorro.\n`;
+                }
+                if(debts > 0) {
+                    advice += `• Deudas: Tienes un saldo pendiente de ${formatCurrency(debts)}. Enfócate en liquidar prioritariamente los compromisos con mayor tasa de interés o pagos fijos.\n`;
+                }
+                advice += `• Recomendación de Ahorro: Intenta automatizar aportes quincenales hacia tus metas de ahorro y mantén siempre un colchón de seguridad en efectivo equivalente a 3 meses de gastos fijos.`;
+
+                container.innerHTML = advice;
+                showNotification('Asesoría IA generada con éxito', 'success');
+            }, 1200);
         }
 
-        async function askGeminiFinancialAdvice() {
-            askGeminiQuickAudit();
+        async function askGeminiQuickAudit() {
+            // Cambiar a sección de asesor IA y disparar análisis
+            document.querySelector('[data-section="aiadvisor"]').click();
+            askGeminiFinancialAdvice();
         }
     </script>
 </body>
