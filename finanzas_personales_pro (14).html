@@ -158,15 +158,15 @@
     </div>
 
     <div id="admin-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full p-6 border border-slate-100 dark:border-slate-700 fade-in space-y-6 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 dark:border-slate-700 fade-in space-y-6">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-rose-600 text-white rounded-xl flex items-center justify-center font-bold">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Panel de Administrador & Auditoría</h3>
-                        <p class="text-xs text-slate-500">Gestión de seguridad, base de datos y bitácora de acciones</p>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Panel de Administrador</h3>
+                        <p class="text-xs text-slate-500">Gestión de seguridad y base de datos</p>
                     </div>
                 </div>
                 <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
@@ -184,144 +184,46 @@
             </div>
 
             <div id="admin-options-section" class="space-y-6 hidden">
-                <!-- Pestañas internas del panel admin -->
-                <div class="flex space-x-2 border-b border-slate-200 dark:border-slate-700 pb-2">
-                    <button onclick="switchAdminSubTab('general')" id="admin-tab-general" class="px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white cursor-pointer">Herramientas y Config</button>
-                    <button onclick="switchAdminSubTab('audit')" id="admin-tab-audit" class="px-4 py-2 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer">Bitácora de Auditoría</button>
-                </div>
-
-                <div id="admin-subcontent-general" class="space-y-6">
-                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-700">
-                        <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
-                            <i class="fa-solid fa-key text-indigo-500"></i>
-                            <span>Cambiar Contraseña de Usuario</span>
-                        </h4>
-                        <div class="flex space-x-2">
-                            <input type="text" id="new-user-password" placeholder="Nueva contraseña" class="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
-                            <button onclick="adminChangePassword()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm transition-all cursor-pointer">Cambiar</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-700">
-                        <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
-                            <i class="fa-solid fa-download text-emerald-500"></i>
-                            <span>Respaldar Base de Datos</span>
-                        </h4>
-                        <p class="text-xs text-slate-500">Descarga un archivo JSON con toda la información actual.</p>
-                        <button onclick="adminExportBackup()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all cursor-pointer">Descargar Respaldo</button>
-                    </div>
-
-                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-700">
-                        <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
-                            <i class="fa-solid fa-upload text-blue-500"></i>
-                            <span>Restaurar Base de Datos</span>
-                        </h4>
-                        <input type="file" id="admin-import-file" accept=".json" onchange="adminImportBackup(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-950/50 dark:file:text-blue-300 hover:file:bg-blue-100 cursor-pointer">
-                    </div>
-
-                    <div class="bg-rose-50 dark:bg-rose-950/20 p-4 rounded-xl space-y-3 border border-rose-200 dark:border-rose-900/50">
-                        <h4 class="font-bold text-rose-700 dark:text-rose-400 text-sm flex items-center space-x-2">
-                            <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
-                            <span>Borrar Todos los Datos</span>
-                        </h4>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Esta acción borrará todos los registros, cuentas, movimientos y configuraciones dejándolos vacíos.</p>
-                        <button onclick="adminWipeDatabase()" class="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-rose-500/25 cursor-pointer">Borrar Todos los Datos</button>
+                <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-700">
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-key text-indigo-500"></i>
+                        <span>Cambiar Contraseña de Usuario</span>
+                    </h4>
+                    <div class="flex space-x-2">
+                        <input type="text" id="new-user-password" placeholder="Nueva contraseña" class="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                        <button onclick="adminChangePassword()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm transition-all cursor-pointer">Cambiar</button>
                     </div>
                 </div>
 
-                <div id="admin-subcontent-audit" class="space-y-4 hidden">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4 class="font-bold text-slate-900 dark:text-white text-sm">Bitácora de Auditoría del Sistema</h4>
-                            <p class="text-xs text-slate-500">Registro detallado de acciones realizadas en el sistema con opción de modificar o eliminar registros.</p>
-                        </div>
-                        <button onclick="openAuditModalForAdd()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow cursor-pointer"><i class="fa-solid fa-plus mr-1"></i> Nueva Bitácora</button>
-                    </div>
+                <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-700">
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-download text-emerald-500"></i>
+                        <span>Respaldar Base de Datos</span>
+                    </h4>
+                    <p class="text-xs text-slate-500">Descarga un archivo JSON con toda la información actual.</p>
+                    <button onclick="adminExportBackup()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all cursor-pointer">Descargar Respaldo</button>
+                </div>
 
-                    <div class="overflow-x-auto max-h-[350px]">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead>
-                                <tr class="bg-slate-100 dark:bg-slate-900 text-slate-500 uppercase">
-                                    <th class="p-2.5">Fecha</th>
-                                    <th class="p-2.5">Hora</th>
-                                    <th class="p-2.5">Usuario</th>
-                                    <th class="p-2.5">Rol</th>
-                                    <th class="p-2.5">Módulo</th>
-                                    <th class="p-2.5">Acción</th>
-                                    <th class="p-2.5">Descripción</th>
-                                    <th class="p-2.5">Resultado</th>
-                                    <th class="p-2.5 text-right">Opciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="audit-table-body">
-                                <!-- Cargado dinámicamente -->
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-700">
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-upload text-blue-500"></i>
+                        <span>Restaurar Base de Datos</span>
+                    </h4>
+                    <input type="file" id="admin-import-file" accept=".json" onchange="adminImportBackup(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-950/50 dark:file:text-blue-300 hover:file:bg-blue-100 cursor-pointer">
+                </div>
+
+                <div class="bg-rose-50 dark:bg-rose-950/20 p-4 rounded-xl space-y-3 border border-rose-200 dark:border-rose-900/50">
+                    <h4 class="font-bold text-rose-700 dark:text-rose-400 text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+                        <span>Borrar Todos los Datos</span>
+                    </h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Esta acción borrará todos los registros, cuentas, movimientos y configuraciones dejándolos vacíos.</p>
+                    <button onclick="adminWipeDatabase()" class="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-rose-500/25 cursor-pointer">Borrar Todos los Datos</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="audit-edit-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700 fade-in space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
-                <h3 id="audit-modal-title" class="font-bold text-slate-900 dark:text-white text-sm">Modificar Registro de Auditoría</h3>
-                <button onclick="closeAuditEditModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form id="audit-form" onsubmit="handleAuditFormSubmit(event)" class="space-y-3 text-xs">
-                <input type="hidden" id="audit-id">
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block font-semibold text-slate-500 mb-1">Fecha</label>
-                        <input type="date" id="audit-date" required class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-500 mb-1">Hora</label>
-                        <input type="time" id="audit-time" required class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
-                    </div>
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-500 mb-1">Usuario que realizó la acción</label>
-                    <input type="text" id="audit-user" required placeholder="Ej. Usuario Pro / Admin" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block font-semibold text-slate-500 mb-1">Rol del usuario</label>
-                        <select id="audit-role" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
-                            <option value="Administrador">Administrador</option>
-                            <option value="Usuario Pro">Usuario Pro</option>
-                            <option value="Sistema IA">Sistema IA</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-500 mb-1">Módulo afectado</label>
-                        <input type="text" id="audit-module" required placeholder="Ej. Ingresos, Cuentas, IA" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block font-semibold text-slate-500 mb-1">Tipo de acción</label>
-                        <input type="text" id="audit-type" required placeholder="Ej. Modificación, Creación, Borrado" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-500 mb-1">Resultado</label>
-                        <select id="audit-result" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
-                            <option value="Exitoso">Exitoso</option>
-                            <option value="Rechazado">Rechazado</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block font-semibold text-slate-500 mb-1">Descripción de lo realizado</label>
-                    <textarea id="audit-desc" rows="2" required placeholder="Detalles de la acción..." class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs"></textarea>
-                </div>
-                <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs shadow cursor-pointer">Guardar Registro en Bitácora</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modales estándar de aplicación -->
     <div id="pay-debt-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700 fade-in space-y-5">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
@@ -339,6 +241,7 @@
                 <div>
                     <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cuenta de donde se descuenta el dinero para pagar</label>
                     <select id="pay-debt-account" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                        <!-- Opciones cargadas dinámicamente filtrando la cuenta conectada -->
                     </select>
                 </div>
                 <div>
@@ -411,10 +314,6 @@
             movements: [
                 { id: 'mov_1', date: '2026-09-01', type: 'Ingreso', concept: 'Sueldo mensual', category: 'Sueldo', account: 'Banco Principal', amount: 15000 },
                 { id: 'mov_2', date: '2026-09-02', type: 'Gasto', concept: 'Internet fibra', category: 'Internet', account: 'Banco Principal', amount: -500 }
-            ],
-            auditLogs: [
-                { id: 'aud_1', date: '2026-09-03', time: '10:00', user: 'Usuario Pro', role: 'Usuario Pro', module: 'Ingresos', type: 'Creación', desc: 'Registro de sueldo mensual', result: 'Exitoso' },
-                { id: 'aud_2', date: '2026-09-03', time: '10:15', user: 'Admin', role: 'Administrador', module: 'Seguridad', type: 'Modificación', desc: 'Cambio de parámetros del sistema', result: 'Exitoso' }
             ]
         };
 
@@ -428,35 +327,14 @@
             transfers: [],
             budgets: [],
             debts: [],
-            movements: [],
-            auditLogs: []
+            movements: []
         };
 
         let appState = JSON.parse(localStorage.getItem('finanzas_pro_state')) || DEFAULT_STATE;
         if (!appState.transfers) appState.transfers = [];
-        if (!appState.auditLogs) appState.auditLogs = [];
 
         function saveState() {
             localStorage.setItem('finanzas_pro_state', JSON.stringify(appState));
-        }
-
-        function logAudit(module, type, desc, result = 'Exitoso', user = 'Usuario Pro', role = 'Usuario Pro') {
-            const now = new Date();
-            const dateStr = now.toISOString().split('T')[0];
-            const timeStr = now.toTimeString().substring(0, 5);
-            if (!appState.auditLogs) appState.auditLogs = [];
-            appState.auditLogs.unshift({
-                id: 'aud_' + Date.now(),
-                date: dateStr,
-                time: timeStr,
-                user,
-                role,
-                module,
-                type,
-                desc,
-                result
-            });
-            saveState();
         }
 
         function showToast(message, type = 'success') {
@@ -492,150 +370,10 @@
             if (pass === '3312') {
                 document.getElementById('admin-auth-section').classList.add('hidden');
                 document.getElementById('admin-options-section').classList.remove('hidden');
-                switchAdminSubTab('general');
-                logAudit('Seguridad', 'Acceso Admin', 'Ingreso exitoso al Panel de Administrador', 'Exitoso', 'Admin', 'Administrador');
             } else {
                 const err = document.getElementById('admin-error');
                 err.textContent = 'Contraseña incorrecta.';
                 err.classList.remove('hidden');
-                logAudit('Seguridad', 'Acceso Admin', 'Intento fallido de acceso al Panel de Administrador', 'Rechazado', 'Desconocido', 'Desconocido');
-            }
-        }
-
-        function switchAdminSubTab(tab) {
-            const genBtn = document.getElementById('admin-tab-general');
-            const auditBtn = document.getElementById('admin-tab-audit');
-            const genSec = document.getElementById('admin-subcontent-general');
-            const auditSec = document.getElementById('admin-subcontent-audit');
-
-            if (tab === 'general') {
-                genBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white cursor-pointer';
-                auditBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer';
-                genSec.classList.remove('hidden');
-                auditSec.classList.add('hidden');
-            } else {
-                auditBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white cursor-pointer';
-                genBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer';
-                auditSec.classList.remove('hidden');
-                genSec.classList.add('hidden');
-                renderAuditTable();
-            }
-        }
-
-        function renderAuditTable() {
-            const tbody = document.getElementById('audit-table-body');
-            if (!tbody) return;
-            if (!appState.auditLogs || appState.auditLogs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">No hay registros de auditoría</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = appState.auditLogs.map(log => `
-                <tr class="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/50">
-                    <td class="p-2.5 font-medium">${log.date}</td>
-                    <td class="p-2.5 text-slate-500">${log.time}</td>
-                    <td class="p-2.5 font-semibold">${log.user}</td>
-                    <td class="p-2.5"><span class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded">${log.role}</span></td>
-                    <td class="p-2.5">${log.module}</td>
-                    <td class="p-2.5">${log.type}</td>
-                    <td class="p-2.5 text-slate-600 dark:text-slate-300 max-w-[180px] truncate" title="${log.desc}">${log.desc}</td>
-                    <td class="p-2.5"><span class="px-2 py-0.5 font-bold rounded ${log.result === 'Exitoso' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400'}">${log.result}</span></td>
-                    <td class="p-2.5 text-right space-x-1">
-                        <button onclick="openAuditEditModal('${log.id}')" class="text-indigo-600 hover:text-indigo-800 p-1 cursor-pointer" title="Modificar"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteAuditLog('${log.id}')" class="text-rose-600 hover:text-rose-800 p-1 cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function openAuditModalForAdd() {
-            document.getElementById('audit-modal-title').textContent = 'Crear Nuevo Registro de Auditoría';
-            document.getElementById('audit-id').value = '';
-            document.getElementById('audit-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('audit-time').value = new Date().toTimeString().substring(0, 5);
-            document.getElementById('audit-user').value = 'Admin';
-            document.getElementById('audit-role').value = 'Administrador';
-            document.getElementById('audit-module').value = 'General';
-            document.getElementById('audit-type').value = 'Acción Manual';
-            document.getElementById('audit-desc').value = '';
-            document.getElementById('audit-result').value = 'Exitoso';
-
-            const modal = document.getElementById('audit-edit-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function openAuditEditModal(id) {
-            const log = (appState.auditLogs || []).find(l => l.id === id);
-            if (!log) return;
-            document.getElementById('audit-modal-title').textContent = 'Modificar Registro de Auditoría';
-            document.getElementById('audit-id').value = log.id;
-            document.getElementById('audit-date').value = log.date;
-            document.getElementById('audit-time').value = log.time;
-            document.getElementById('audit-user').value = log.user;
-            document.getElementById('audit-role').value = log.role;
-            document.getElementById('audit-module').value = log.module;
-            document.getElementById('audit-type').value = log.type;
-            document.getElementById('audit-desc').value = log.desc;
-            document.getElementById('audit-result').value = log.result;
-
-            const modal = document.getElementById('audit-edit-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeAuditEditModal() {
-            const modal = document.getElementById('audit-edit-modal');
-            modal.classList.remove('flex');
-            modal.classList.add('hidden');
-        }
-
-        function handleAuditFormSubmit(e) {
-            e.preventDefault();
-            const id = document.getElementById('audit-id').value;
-            const date = document.getElementById('audit-date').value;
-            const time = document.getElementById('audit-time').value;
-            const user = document.getElementById('audit-user').value;
-            const role = document.getElementById('audit-role').value;
-            const module = document.getElementById('audit-module').value;
-            const type = document.getElementById('audit-type').value;
-            const desc = document.getElementById('audit-desc').value;
-            const result = document.getElementById('audit-result').value;
-
-            if (!appState.auditLogs) appState.auditLogs = [];
-
-            if (id) {
-                const log = appState.auditLogs.find(l => l.id === id);
-                if (log) {
-                    log.date = date;
-                    log.time = time;
-                    log.user = user;
-                    log.role = role;
-                    log.module = module;
-                    log.type = type;
-                    log.desc = desc;
-                    log.result = result;
-                    showToast('Registro de auditoría modificado con éxito.');
-                }
-            } else {
-                appState.auditLogs.unshift({
-                    id: 'aud_' + Date.now(),
-                    date, time, user, role, module, type, desc, result
-                });
-                showToast('Registro de auditoría creado con éxito.');
-            }
-
-            saveState();
-            closeAuditEditModal();
-            renderAuditTable();
-        }
-
-        function deleteAuditLog(id) {
-            if (confirm('¿Está seguro de eliminar este registro de auditoría?')) {
-                appState.auditLogs = appState.auditLogs.filter(l => l.id !== id);
-                saveState();
-                showToast('Registro eliminado de la bitácora.');
-                renderAuditTable();
             }
         }
 
@@ -647,7 +385,6 @@
             }
             appState.password = newPass;
             saveState();
-            logAudit('Seguridad', 'Cambio Contraseña', 'Actualización de contraseña de usuario principal', 'Exitoso', 'Admin', 'Administrador');
             showToast('Contraseña de usuario cambiada exitosamente.');
             document.getElementById('new-user-password').value = '';
         }
@@ -660,7 +397,6 @@
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
-            logAudit('Respaldo', 'Exportación', 'Descarga de respaldo completo de base de datos', 'Exitoso', 'Admin', 'Administrador');
             showToast('Respaldo descargado correctamente.');
         }
 
@@ -676,14 +412,11 @@
                     }
                     appState = parsed;
                     if (!appState.transfers) appState.transfers = [];
-                    if (!appState.auditLogs) appState.auditLogs = [];
                     saveState();
-                    logAudit('Respaldo', 'Importación', 'Restauración de base de datos mediante archivo JSON', 'Exitoso', 'Admin', 'Administrador');
                     showToast('Base de datos restaurada correctamente.');
                     closeAdminModal();
                     location.reload();
                 } catch (err) {
-                    logAudit('Respaldo', 'Importación', 'Fallo al restaurar respaldo por formato corrupto', 'Rechazado', 'Admin', 'Administrador');
                     showToast('El archivo de respaldo no es válido o está corrupto.', 'error');
                 }
             };
@@ -696,7 +429,6 @@
                 appState = JSON.parse(JSON.stringify(EMPTY_STATE));
                 appState.password = currentPassword;
                 saveState();
-                logAudit('Base de Datos', 'Borrado Total', 'Eliminación completa de registros y cuentas', 'Exitoso', 'Admin', 'Administrador');
                 showToast('Todos los datos han sido borrados.');
                 closeAdminModal();
                 location.reload();
@@ -728,20 +460,17 @@
                 saveState();
                 document.getElementById('login-view').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
-                logAudit('Seguridad', 'Inicio Sesión', 'Acceso exitoso al sistema con contraseña de usuario', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
                 switchTab('dashboard');
             } else {
                 const err = document.getElementById('login-error');
                 err.textContent = 'Contraseña incorrecta. Intente de nuevo';
                 err.classList.remove('hidden');
-                logAudit('Seguridad', 'Inicio Sesión', 'Intento de acceso fallido al sistema', 'Rechazado', 'Desconocido', 'Desconocido');
             }
         }
 
         function lockApp() {
             appState.authenticated = false;
             saveState();
-            logAudit('Seguridad', 'Bloqueo', 'Bloqueo manual de sesión', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             document.getElementById('main-app').classList.add('hidden');
             document.getElementById('login-view').classList.remove('hidden');
             document.getElementById('login-password').value = '';
@@ -771,7 +500,7 @@
                 disponer: 'Disponer crédito',
                 deudas: 'Deudas y Tarjetas',
                 movimientos: 'Historial de Movimientos',
-                asesor: 'Asesor Financiero IA (Nuevas Integraciones)',
+                asesor: 'Asesor Financiero IA',
                 reportes: 'Generación de Reportes PDF',
                 seguridad: 'Seguridad y Contraseña',
                 respaldo: 'Respaldo de Datos (Exportar / Importar)'
@@ -856,7 +585,7 @@
                 case 'disponer': renderDisponerCredito(container); break;
                 case 'deudas': renderDeudas(container); break;
                 case 'movimientos': renderMovimientos(container); break;
-                case 'asesor': renderAsesorIA(container); break;
+                case 'asesor': renderAsesor(container); break;
                 case 'reportes': renderReportes(container); break;
                 case 'seguridad': renderSeguridad(container); break;
                 case 'respaldo': renderRespaldo(container); break;
@@ -931,7 +660,7 @@
                         <div class="pt-2">
                             <button onclick="switchTab('asesor')" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center space-x-2 transition-all cursor-pointer">
                                 <i class="fa-solid fa-robot"></i>
-                                <span>Asesor IA Pro</span>
+                                <span>Auditoría IA</span>
                             </button>
                         </div>
                     </div>
@@ -978,143 +707,6 @@
             });
         }
 
-        function renderAsesorIA(container) {
-            container.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-600 text-white rounded-xl flex items-center justify-center font-bold shadow-md shadow-indigo-500/20">
-                                <i class="fa-solid fa-robot text-lg"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-slate-900 dark:text-white text-base">Asesor Financiero IA</h3>
-                                <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">Nuevas Integraciones Activas</p>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Selecciona una nueva integración o herramienta de inteligencia artificial para auditar o planificar tus finanzas:</p>
-                        
-                        <div class="space-y-2">
-                            <button onclick="runAiIntegration('auditoria')" class="w-full p-3 bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 rounded-xl text-left text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between transition-all cursor-pointer">
-                                <span class="flex items-center space-x-2"><i class="fa-solid fa-brain text-indigo-600"></i><span>Auditoría Predictiva de Gastos (IA)</span></span>
-                                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
-                            </button>
-                            <button onclick="runAiIntegration('recorte')" class="w-full p-3 bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 rounded-xl text-left text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between transition-all cursor-pointer">
-                                <span class="flex items-center space-x-2"><i class="fa-solid fa-scissors text-rose-500"></i><span>Simulador de Recorte de Gastos Hormiga</span></span>
-                                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
-                            </button>
-                            <button onclick="runAiIntegration('inversion')" class="w-full p-3 bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 rounded-xl text-left text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between transition-all cursor-pointer">
-                                <span class="flex items-center space-x-2"><i class="fa-solid fa-chart-line text-emerald-500"></i><span>Motor IA de Portafolio e Inversión</span></span>
-                                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
-                            </button>
-                            <button onclick="runAiIntegration('liquidez')" class="w-full p-3 bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 rounded-xl text-left text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between transition-all cursor-pointer">
-                                <span class="flex items-center space-x-2"><i class="fa-solid fa-shield-heart text-blue-500"></i><span>Escáner de Salud y Liquidez Financiera</span></span>
-                                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
-                            <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
-                                <i class="fa-solid fa-terminal text-indigo-600"></i>
-                                <span>Consola de Resultados del Asesor IA</span>
-                            </h4>
-                            <span class="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold rounded-full">En Línea</span>
-                        </div>
-                        <div id="ai-output-box" class="flex-1 bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-xs overflow-y-auto min-h-[280px] space-y-2">
-                            <p class="text-indigo-400">// Asesor Financiero Pro IA v3.5 inicializado correctamente.</p>
-                            <p class="text-slate-400">Seleccione una integración en el panel izquierdo para generar un informe o recomendación automatizada en tiempo real basada en sus datos financieros actuales.</p>
-                        </div>
-                        <div class="flex space-x-2">
-                            <input type="text" id="ai-custom-prompt" placeholder="Pregúntale algo a la IA sobre tus finanzas..." class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white">
-                            <button onclick="sendCustomAiPrompt()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-all cursor-pointer">Enviar</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function runAiIntegration(type) {
-            const outBox = document.getElementById('ai-output-box');
-            if (!outBox) return;
-
-            let resultHtml = '';
-            const totalMoney = getTotalAvailableMoney();
-            const totalExpenses = getTotalExpenses();
-            const totalIncomes = getTotalIncomes();
-            const totalDebts = getTotalPendingDebts();
-
-            if (type === 'auditoria') {
-                resultHtml = `
-                    <div class="space-y-2 text-slate-200">
-                        <p class="text-indigo-400 font-bold">[AUDITORÍA PREDICTIVA DE GASTOS IA]</p>
-                        <p>Analizando transacciones y flujos de caja recientes...</p>
-                        <p class="text-emerald-400">✓ Ingresos totales evaluados: $${totalIncomes.toLocaleString()}</p>
-                        <p class="text-rose-400">✓ Egresos totales evaluados: $${totalExpenses.toLocaleString()}</p>
-                        <p class="text-amber-400">⚠ Alerta IA: Los gastos en servicios y entretenimiento representan el 35% de tu liquidez mensual. Se sugiere un tope máximo del 25% para optimizar el ahorro.</p>
-                        <p class="text-slate-300">Conclusión: Tu salud financiera actual es <span class="text-emerald-400 font-bold">Estable con tendencia positiva</span>.</p>
-                    </div>
-                `;
-                logAudit('Asesor IA', 'Auditoría', 'Ejecución exitosa de auditoría predictiva de gastos', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
-            } else if (type === 'recorte') {
-                resultHtml = `
-                    <div class="space-y-2 text-slate-200">
-                        <p class="text-rose-400 font-bold">[SIMULADOR DE RECORTE DE GASTOS HORMIGA]</p>
-                        <p>Calculando impacto de eliminar gastos innecesarios...</p>
-                        <p>Si reduces un 15% tus gastos hormiga semanales (aprox. $750 al mes):</p>
-                        <p class="text-emerald-400">➜ Ahorro anual proyectado: <span class="font-bold">$9,000.00</span></p>
-                        <p class="text-indigo-400">➜ Equivalencia en inversión a plazo fijo: Cobertura de 2 meses de deudas actuales.</p>
-                    </div>
-                `;
-                logAudit('Asesor IA', 'Simulador Recorte', 'Simulación de recorte de gastos hormiga generada', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
-            } else if (type === 'inversion') {
-                resultHtml = `
-                    <div class="space-y-2 text-slate-200">
-                        <p class="text-emerald-400 font-bold">[MOTOR IA DE PORTAFOLIO E INVERSIÓN]</p>
-                        <p>Evaluando capital disponible ($${totalMoney.toLocaleString()})...</p>
-                        <p>Recomendación de distribución inteligente basada en tu perfil:</p>
-                        <ul class="list-disc list-inside text-xs space-y-1 text-slate-300">
-                            <li><span class="text-indigo-400 font-bold">40% Fondos de liquidez diaria</span> (Para emergencias e imprevistos).</li>
-                            <li><span class="text-indigo-400 font-bold">35% Renta Fija Gubernamental / CETES</span> (Riesgo bajo, rendimiento estimado 10.5%).</li>
-                            <li><span class="text-indigo-400 font-bold">25% Cripto / Renta Variable</span> (Crecimiento a largo plazo).</li>
-                        </ul>
-                    </div>
-                `;
-                logAudit('Asesor IA', 'Portafolio Inversión', 'Generación de sugerencia de portafolio de inversión', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
-            } else if (type === 'liquidez') {
-                const ratio = totalIncomes > 0 ? ((totalExpenses / totalIncomes) * 100).toFixed(1) : 0;
-                resultHtml = `
-                    <div class="space-y-2 text-slate-200">
-                        <p class="text-blue-400 font-bold">[ESCÁNER DE SALUD Y LIQUIDEZ FINANCIERA]</p>
-                        <p>Ratio Gastos / Ingresos actual: <span class="font-bold ${ratio > 80 ? 'text-rose-400' : 'text-emerald-400'}">${ratio}%</span></p>
-                        <p>Deudas pendientes totales: $${totalDebts.toLocaleString()}</p>
-                        <p class="text-slate-300">Diagnóstico IA: ${ratio < 70 ? 'Excelente margen de maniobra financiera. Tienes capacidad de ahorro superior al promedio.' : 'Precaución: Tus gastos se acercan al límite de tus ingresos mensuales.'}</p>
-                    </div>
-                `;
-                logAudit('Asesor IA', 'Escáner Liquidez', 'Análisis de salud y liquidez financiera ejecutado', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
-            }
-
-            outBox.innerHTML = resultHtml;
-            showToast('Análisis de IA generado con éxito.');
-        }
-
-        function sendCustomAiPrompt() {
-            const input = document.getElementById('ai-custom-prompt');
-            const outBox = document.getElementById('ai-output-box');
-            if (!input || !input.value.trim()) return;
-
-            const query = input.value.trim();
-            outBox.innerHTML += `
-                <div class="mt-2 text-indigo-300 font-semibold">> ${query}</div>
-                <div class="text-slate-300">Analizando consulta con modelo financiero inteligente... Basado en tus cuentas y flujos actuales, te sugiero mantener la disciplina en tus categorías principales y priorizar el pago de deudas con mayor tasa de interés.</div>
-            `;
-            logAudit('Asesor IA', 'Consulta Personalizada', `Pregunta IA: "${query}"`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
-            input.value = '';
-            outBox.scrollTop = outBox.scrollHeight;
-            showToast('Consulta respondida por el Asesor IA.');
-        }
-
-        // Vistas estándar de soporte
         function renderIngresos(container) {
             let accountOptions = appState.accounts.map(a => `<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
             let listIncomes = (appState.incomes || []).map(i => {
@@ -1133,11 +725,23 @@
                 `;
             }).join('');
 
+            let listPending = (appState.pendingIncomes || []).map(p => `
+                <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                    <td class="py-3 px-4 text-sm font-semibold">${p.concept}</td>
+                    <td class="py-3 px-4 text-sm font-bold text-amber-600">$${Number(p.amount).toLocaleString()}</td>
+                    <td class="py-3 px-4 text-sm text-slate-500">${p.expectedDate}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button type="button" onclick="confirmPendingIncome('${p.id}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow cursor-pointer">Cobrar / Recibir</button>
+                        <button type="button" onclick="deletePendingIncome('${p.id}')" class="text-rose-500 hover:text-rose-700 text-xs ml-2 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
             container.innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
                         <h3 class="font-bold text-slate-900 dark:text-white text-base">Registrar Nuevo Ingreso</h3>
-                        <form onsubmit="handleIncomeSubmit(event)" class="space-y-4">
+                        <form id="income-form" onsubmit="handleIncomeSubmit(event)" class="space-y-4">
                             <div>
                                 <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Concepto</label>
                                 <input type="text" id="inc-concept" required placeholder="Ej. Bono, Venta, Sueldo" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
@@ -1191,6 +795,25 @@
                                 </table>
                             </div>
                         </div>
+
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base">Ingresos Pendientes por Cobrar</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 uppercase">
+                                            <th class="py-3 px-4">Concepto</th>
+                                            <th class="py-3 px-4">Monto Est.</th>
+                                            <th class="py-3 px-4">Fecha Esperada</th>
+                                            <th class="py-3 px-4 text-right">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${listPending.length ? listPending : `<tr><td colspan="4" class="py-4 text-center text-sm text-slate-400">No hay ingresos pendientes</td></tr>`}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1198,11 +821,19 @@
 
         function handleIncomeSubmit(e) {
             e.preventDefault();
-            const concept = document.getElementById('inc-concept').value;
-            const type = document.getElementById('inc-type').value;
-            const accountId = document.getElementById('inc-account').value;
-            const amount = Number(document.getElementById('inc-amount').value);
-            const date = document.getElementById('inc-date').value;
+            const conceptEl = document.getElementById('inc-concept');
+            const typeEl = document.getElementById('inc-type');
+            const accountIdEl = document.getElementById('inc-account');
+            const amountEl = document.getElementById('inc-amount');
+            const dateEl = document.getElementById('inc-date');
+
+            if (!conceptEl || !typeEl || !accountIdEl || !amountEl || !dateEl) return;
+
+            const concept = conceptEl.value;
+            const type = typeEl.value;
+            const accountId = accountIdEl.value;
+            const amount = Number(amountEl.value);
+            const date = dateEl.value;
 
             if (!accountId) {
                 showToast('Debe crear al menos una cuenta antes de registrar ingresos.', 'error');
@@ -1212,24 +843,51 @@
             if (!appState.incomes) appState.incomes = [];
             if (!appState.movements) appState.movements = [];
 
-            appState.incomes.push({ id: 'inc_' + Date.now(), concept, type, accountId, amount, date });
+            const newInc = { id: 'inc_' + Date.now(), concept, type, accountId, amount, date };
+            appState.incomes.push(newInc);
+
             const acc = appState.accounts.find(a => a.id === accountId);
-            appState.movements.push({ id: 'mov_' + Date.now(), date, type: 'Ingreso', concept, category: type, account: acc ? acc.name : 'General', accountId, amount });
+            const newMov = { id: 'mov_' + Date.now(), date, type: 'Ingreso', concept, category: type, account: acc ? acc.name : 'General', accountId, amount };
+            appState.movements.push(newMov);
 
             saveState();
-            logAudit('Ingresos', 'Creación', `Registro de ingreso: ${concept} ($${amount})`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Ingreso registrado con éxito.');
             switchTab('ingresos');
         }
 
         function deleteIncome(id) {
+            if (!appState.incomes) return;
             const inc = appState.incomes.find(i => i.id === id);
             if (!inc) return;
             appState.incomes = appState.incomes.filter(i => i.id !== id);
             appState.movements = appState.movements.filter(m => !(m.concept === inc.concept && m.amount === inc.amount && m.type === 'Ingreso'));
             saveState();
-            logAudit('Ingresos', 'Eliminación', `Eliminación de ingreso: ${inc.concept}`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Ingreso eliminado.');
+            switchTab('ingresos');
+        }
+
+        function confirmPendingIncome(id) {
+            if (!appState.pendingIncomes) return;
+            const p = appState.pendingIncomes.find(pi => pi.id === id);
+            if (!p) return;
+            appState.pendingIncomes = appState.pendingIncomes.filter(pi => pi.id !== id);
+            if (!appState.incomes) appState.incomes = [];
+            appState.incomes.push({ id: 'inc_' + Date.now(), concept: p.concept, type: p.type, accountId: p.accountId, amount: p.amount, date: new Date().toISOString().split('T')[0] });
+            
+            const acc = appState.accounts.find(a => a.id === p.accountId);
+            if (!appState.movements) appState.movements = [];
+            appState.movements.push({ id: 'mov_' + Date.now(), date: new Date().toISOString().split('T')[0], type: 'Ingreso', concept: p.concept, category: p.type, account: acc ? acc.name : 'General', accountId: p.accountId, amount: p.amount });
+
+            saveState();
+            showToast('Ingreso cobrado y registrado.');
+            switchTab('ingresos');
+        }
+
+        function deletePendingIncome(id) {
+            if (!appState.pendingIncomes) return;
+            appState.pendingIncomes = appState.pendingIncomes.filter(pi => pi.id !== id);
+            saveState();
+            showToast('Ingreso pendiente eliminado.');
             switchTab('ingresos');
         }
 
@@ -1333,12 +991,14 @@
                 return;
             }
 
-            appState.expenses.push({ id: 'exp_' + Date.now(), concept, category, paymentMethod, accountId, amount, date });
+            const newExp = { id: 'exp_' + Date.now(), concept, category, paymentMethod, accountId, amount, date };
+            appState.expenses.push(newExp);
+
             const acc = appState.accounts.find(a => a.id === accountId);
-            appState.movements.push({ id: 'mov_' + Date.now(), date, type: 'Gasto', concept, category, account: acc ? acc.name : 'General', accountId, amount: -amount });
+            const newMov = { id: 'mov_' + Date.now(), date, type: 'Gasto', concept, category, account: acc ? acc.name : 'General', accountId, amount: -amount };
+            appState.movements.push(newMov);
 
             saveState();
-            logAudit('Gastos', 'Creación', `Registro de gasto: ${concept} ($${amount})`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Gasto registrado con éxito.');
             switchTab('gastos');
         }
@@ -1349,7 +1009,6 @@
             appState.expenses = appState.expenses.filter(e => e.id !== id);
             appState.movements = appState.movements.filter(m => !(m.concept === exp.concept && m.amount === -exp.amount && m.type === 'Gasto'));
             saveState();
-            logAudit('Gastos', 'Eliminación', `Eliminación de gasto: ${exp.concept}`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Gasto eliminado.');
             switchTab('gastos');
         }
@@ -1417,7 +1076,6 @@
 
             appState.budgets.push({ id: 'bud_' + Date.now(), category, limit });
             saveState();
-            logAudit('Presupuestos', 'Creación', `Nuevo presupuesto creado: ${category} ($${limit})`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Presupuesto creado con éxito.');
             switchTab('presupuesto');
         }
@@ -1425,7 +1083,6 @@
         function deleteBudget(id) {
             appState.budgets = appState.budgets.filter(b => b.id !== id);
             saveState();
-            logAudit('Presupuestos', 'Eliminación', 'Eliminación de presupuesto', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Presupuesto eliminado.');
             switchTab('presupuesto');
         }
@@ -1499,7 +1156,6 @@
 
             appState.accounts.push({ id: 'acc_' + Date.now(), name, type, initialBalance });
             saveState();
-            logAudit('Cuentas', 'Creación', `Nueva cuenta creada: ${name} (${type})`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Cuenta creada con éxito.');
             switchTab('cuentas');
         }
@@ -1535,7 +1191,6 @@
                 const err = document.getElementById('edit-acc-error');
                 err.textContent = 'Contraseña de administrador incorrecta (debe ser 3312).';
                 err.classList.remove('hidden');
-                logAudit('Cuentas', 'Modificación', 'Intento fallido de modificar cuenta por contraseña admin incorrecta', 'Rechazado', 'Admin', 'Administrador');
                 return;
             }
 
@@ -1546,7 +1201,6 @@
             acc.initialBalance = newBalance;
             saveState();
             closeEditAccountModal();
-            logAudit('Cuentas', 'Modificación', `Modificación de cuenta ${newName} con contraseña admin`, 'Exitoso', 'Admin', 'Administrador');
             showToast('Cuenta modificada exitosamente.');
             switchTab('cuentas');
         }
@@ -1554,7 +1208,6 @@
         function deleteAccount(id) {
             appState.accounts = appState.accounts.filter(a => a.id !== id);
             saveState();
-            logAudit('Cuentas', 'Eliminación', 'Eliminación de cuenta bancaria', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Cuenta eliminada.');
             switchTab('cuentas');
         }
@@ -1661,8 +1314,14 @@
             const fromAcc = appState.accounts.find(a => a.id === fromAccountId);
             const toAcc = appState.accounts.find(a => a.id === toAccountId);
 
+            if (!fromAcc || !toAcc) {
+                showToast('Cuentas seleccionadas inválidas.', 'error');
+                return;
+            }
+
+            const transferId = 'tr_' + Date.now();
             if (!appState.transfers) appState.transfers = [];
-            appState.transfers.push({ id: 'tr_' + Date.now(), fromAccountId, toAccountId, amount, concept, date });
+            appState.transfers.push({ id: transferId, fromAccountId, toAccountId, amount, concept, date });
 
             if (!appState.movements) appState.movements = [];
             appState.movements.push({
@@ -1688,7 +1347,6 @@
             });
 
             saveState();
-            logAudit('Traspasos', 'Creación', `Traspaso de $${amount} de ${fromAcc.name} a ${toAcc.name}`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Traspaso realizado con éxito.');
             switchTab('traspasos');
         }
@@ -1699,7 +1357,6 @@
             appState.transfers = appState.transfers.filter(t => t.id !== id);
             appState.movements = appState.movements.filter(m => !m.concept.includes(`Traspaso`) || m.amount !== -tr.amount && m.amount !== tr.amount);
             saveState();
-            logAudit('Traspasos', 'Eliminación', 'Eliminación de traspaso', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Traspaso eliminado.');
             switchTab('traspasos');
         }
@@ -1764,6 +1421,7 @@
                                             <li>Se verifica que la cuenta o tarjeta de donde se pide el préstamo tenga fondos o crédito disponible.</li>
                                             <li>El dinero solicitado se ingresa inmediatamente en la cuenta destino seleccionada (ej. Efectivo).</li>
                                             <li>Se crea automáticamente una <strong>nueva deuda</strong> vinculada a la tarjeta de crédito u origen.</li>
+                                            <li>Cuando realices un abono a esta deuda en el futuro, el dinero se descontará de otra cuenta (ej. Efectivo) y <strong>regresará a abonar a la tarjeta conectada</strong>.</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -1796,108 +1454,186 @@
                 return;
             }
 
+            const creditAcc = appState.accounts.find(a => a.id === creditAccId);
+            const destAcc = appState.accounts.find(a => a.id === destAccId);
+
+            if (!creditAcc || !destAcc) {
+                showToast('Cuentas seleccionadas inválidas.', 'error');
+                return;
+            }
+
             const availableCredit = getAccountCurrentBalance(creditAccId);
             if (amount > availableCredit) {
                 errorBox.classList.remove('hidden');
-                logAudit('Crédito', 'Disponer Crédito', `Intento de disposición de $${amount} rechazado por falta de fondos`, 'Rechazado', 'Usuario Pro', 'Usuario Pro');
                 showToast('Operación denegada. Monto mayor al disponible.', 'error');
                 return;
             }
 
             const today = new Date().toISOString().split('T')[0];
+
             if (!appState.movements) appState.movements = [];
 
+            // Descontar de cuenta origen del crédito
             appState.movements.push({
                 id: 'mov_disp_out_' + Date.now(),
                 date: today,
-                type: 'Gasto',
+                type: 'Disposición',
                 concept: `Disposición de crédito (${institution})`,
                 category: 'Crédito',
-                accountId: creditAccId,
+                account: creditAcc.name,
+                accountId: creditAcc.id,
                 amount: -amount
             });
 
+            // Ingresar en cuenta destino
             appState.movements.push({
                 id: 'mov_disp_in_' + Date.now(),
                 date: today,
-                type: 'Ingreso',
-                concept: `Préstamo recibido (${institution})`,
+                type: 'Disposición',
+                concept: `Recepción de disposición de crédito (${institution})`,
                 category: 'Crédito',
-                accountId: destAccId,
+                account: destAcc.name,
+                accountId: destAcc.id,
                 amount: amount
             });
 
+            // Crear automáticamente la deuda conectada a la tarjeta/cuenta de origen
             if (!appState.debts) appState.debts = [];
             appState.debts.push({
-                id: 'deb_' + Date.now(),
-                name: `Préstamo ${institution}`,
+                id: 'deb_disp_' + Date.now(),
+                name: `Préstamo / Disposición ${institution}`,
                 type: 'Préstamo',
-                institution,
+                institution: institution,
                 originalAmount: amount,
                 currentBalance: amount,
-                requiredPayment,
-                frequency: 'Mensual',
-                paymentDay,
-                connectedAccountId: creditAccId
+                requiredPayment: requiredPayment,
+                paymentDay: paymentDay,
+                connectedAccountId: creditAcc.id
             });
 
             saveState();
-            logAudit('Crédito', 'Disposición Exitosa', `Disposición de $${amount} de ${institution}`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
-            showToast('Crédito dispuesto y deuda generada exitosamente.');
+            showToast('¡Disposición de crédito realizada y deuda creada exitosamente!');
             switchTab('deudas');
         }
 
         function renderDeudas(container) {
-            let listDebts = (appState.debts || []).map(d => {
+            let accountOptionsForDebt = `<option value="">-- Sin cuenta conectada --</option>` + appState.accounts.map(a => `<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
+
+            let listDebts = appState.debts.map(d => {
                 let connectedAcc = appState.accounts.find(a => a.id === d.connectedAccountId);
                 return `
                     <tr class="border-b border-slate-100 dark:border-slate-700/50">
-                        <td class="py-3 px-4 text-sm font-semibold text-slate-900 dark:text-white">${d.name}</td>
-                        <td class="py-3 px-4 text-sm text-slate-500">${d.institution || 'N/A'}</td>
-                        <td class="py-3 px-4 text-sm font-bold text-amber-600">$${Number(d.currentBalance).toLocaleString()}</td>
-                        <td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">$${Number(d.requiredPayment || 0).toLocaleString()} (${d.paymentDay || 'Mensual'})</td>
-                        <td class="py-3 px-4 text-sm text-slate-500">${connectedAcc ? connectedAcc.name : 'General'}</td>
-                        <td class="py-3 px-4 text-right space-x-1">
-                            <button onclick="openPayDebtModal('${d.id}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow cursor-pointer">Abonar</button>
-                            <button onclick="deleteDebt('${d.id}')" class="text-rose-500 hover:text-rose-700 text-xs p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        <td class="py-3 px-4 font-semibold">${d.name}</td>
+                        <td class="py-3 px-4 text-sm"><span class="px-2 py-1 bg-amber-50 dark:bg-amber-950/50 text-amber-600 text-xs rounded-lg">${d.institution}</span></td>
+                        <td class="py-3 px-4 font-bold text-rose-600">$${Number(d.currentBalance).toLocaleString()}</td>
+                        <td class="py-3 px-4 font-semibold text-indigo-600">$${Number(d.requiredPayment).toLocaleString()}</td>
+                        <td class="py-3 px-4 text-sm text-slate-500">${connectedAcc ? `<span class="px-2 py-1 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 rounded text-xs"><i class="fa-solid fa-link mr-1"></i>${connectedAcc.name}</span>` : '<span class="text-slate-400 italic">Ninguna</span>'}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="openPayDebtModal('${d.id}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow cursor-pointer mr-2">Abonar</button>
+                            <button onclick="deleteDebt('${d.id}')" class="text-rose-500 hover:text-rose-700 text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
             }).join('');
 
             container.innerHTML = `
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Gestión de Deudas y Créditos</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 uppercase">
-                                    <th class="py-3 px-4">Deuda</th>
-                                    <th class="py-3 px-4">Institución</th>
-                                    <th class="py-3 px-4">Saldo Pendiente</th>
-                                    <th class="py-3 px-4">Pago Req.</th>
-                                    <th class="py-3 px-4">Cuenta Conectada</th>
-                                    <th class="py-3 px-4 text-right">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${listDebts.length ? listDebts : `<tr><td colspan="6" class="py-4 text-center text-sm text-slate-400">No hay deudas registradas</td></tr>`}
-                            </tbody>
-                        </table>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Registrar Nueva Deuda</h3>
+                        <form onsubmit="handleDebtSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nombre de la Deuda</label>
+                                <input type="text" id="deb-name" required placeholder="Ej. Tarjeta Stori, Préstamo personal" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Institución / Tipo</label>
+                                <input type="text" id="deb-inst" required placeholder="Ej. Stori, BBVA" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Saldo Actual Pendiente ($)</label>
+                                <input type="number" id="deb-balance" required step="0.01" placeholder="0.00" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Pago mínimo requerido mensual ($)</label>
+                                <input type="number" id="deb-payment" required step="0.01" placeholder="0.00" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cuenta de vinculación (Donde se depositará el dinero abonado)</label>
+                                <select id="deb-connected-account" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                                    ${accountOptionsForDebt}
+                                </select>
+                                <p class="text-[11px] text-slate-400 mt-1">Al abonar a la deuda, el dinero se sumará de regreso a esta cuenta vinculada.</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Día de pago</label>
+                                <input type="text" id="deb-day" required placeholder="Ej. Día 1, Día 15, Día 30" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Registrar Deuda</button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Control de Deudas y Cuentas Conectadas</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 uppercase">
+                                        <th class="py-3 px-4">Nombre</th>
+                                        <th class="py-3 px-4">Institución</th>
+                                        <th class="py-3 px-4">Saldo Deuda</th>
+                                        <th class="py-3 px-4">Pago Req.</th>
+                                        <th class="py-3 px-4">Cuenta Vinculada</th>
+                                        <th class="py-3 px-4 text-right">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${listDebts.length ? listDebts : `<tr><td colspan="6" class="py-4 text-center text-sm text-slate-400">No hay deudas registradas</td></tr>`}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        function openPayDebtModal(debtId) {
-            const d = appState.debts.find(item => item.id === debtId);
-            if (!d) return;
-            document.getElementById('pay-debt-id').value = d.id;
-            document.getElementById('pay-debt-name').value = `${d.name} (Pendiente: $${d.currentBalance})`;
-            document.getElementById('pay-debt-amount').value = d.requiredPayment || '';
+        function handleDebtSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('deb-name').value;
+            const institution = document.getElementById('deb-inst').value;
+            const currentBalance = Number(document.getElementById('deb-balance').value);
+            const requiredPayment = Number(document.getElementById('deb-payment').value);
+            const connectedAccountId = document.getElementById('deb-connected-account').value;
+            const paymentDay = document.getElementById('deb-day').value;
 
-            const select = document.getElementById('pay-debt-account');
-            select.innerHTML = appState.accounts.map(a => `<option value="${a.id}">${a.name} ($${getAccountCurrentBalance(a.id).toLocaleString()})</option>`).join('');
+            appState.debts.push({ id: 'deb_' + Date.now(), name, institution, currentBalance, requiredPayment, connectedAccountId: connectedAccountId || null, paymentDay });
+            saveState();
+            showToast('Deuda registrada con éxito.');
+            switchTab('deudas');
+        }
+
+        function openPayDebtModal(debtId) {
+            const debt = appState.debts.find(d => d.id === debtId);
+            if (!debt) return;
+
+            document.getElementById('pay-debt-id').value = debt.id;
+            document.getElementById('pay-debt-name').value = `${debt.name} (Pendiente: $${debt.currentBalance.toLocaleString()})`;
+            document.getElementById('pay-debt-amount').value = debt.requiredPayment || '';
+
+            const accountSelect = document.getElementById('pay-debt-account');
+            
+            // FILTRO ESTRICTO: Solo mostrar cuentas que NO estén vinculadas a esta deuda
+            let filteredAccounts = appState.accounts.filter(acc => acc.id !== debt.connectedAccountId);
+
+            let optionsHtml = filteredAccounts.map(acc => {
+                return `<option value="${acc.id}">${acc.name} (${acc.type}) - Saldo: $${getAccountCurrentBalance(acc.id).toLocaleString()}</option>`;
+            }).join('');
+
+            accountSelect.innerHTML = optionsHtml || '<option value="">No hay cuentas disponibles para pagar</option>';
+
+            if (filteredAccounts.length === 0) {
+                showToast('No hay cuentas disponibles diferentes a la cuenta vinculada para descontar el dinero.', 'error');
+                return;
+            }
 
             const modal = document.getElementById('pay-debt-modal');
             modal.classList.remove('hidden');
@@ -1913,71 +1649,96 @@
         function handlePayDebtSubmit(e) {
             e.preventDefault();
             const debtId = document.getElementById('pay-debt-id').value;
-            const accountId = document.getElementById('pay-debt-account').value;
+            const accountId = document.getElementById('pay-debt-account').value; // Cuenta de donde se descuenta el dinero para pagar
             const amount = Number(document.getElementById('pay-debt-amount').value);
 
-            const debt = appState.debts.find(d => d.id === debtId);
-            if (!debt) return;
+            let debt = appState.debts.find(d => d.id === debtId);
+            let paymentAccount = appState.accounts.find(a => a.id === accountId); // Cuenta de pago (ej. Efectivo)
+            let connectedAccount = appState.accounts.find(a => a.id === debt.connectedAccountId); // Cuenta vinculada (ej. Stori)
 
-            if (amount <= 0 || amount > debt.currentBalance) {
-                showToast('Monto de abono inválido.', 'error');
+            if (!debt || !paymentAccount) {
+                showToast('Deuda o cuenta de pago inválida.', 'error');
                 return;
             }
 
-            debt.currentBalance -= amount;
-            if (debt.currentBalance <= 0) {
-                appState.debts = appState.debts.filter(d => d.id !== debtId);
+            if (amount <= 0) {
+                showToast('Ingrese un monto válido.', 'error');
+                return;
             }
 
-            const acc = appState.accounts.find(a => a.id === accountId);
             const today = new Date().toISOString().split('T')[0];
 
+            // 1. Reducir saldo de la deuda
+            debt.currentBalance = Math.max(0, debt.currentBalance - amount);
+
             if (!appState.movements) appState.movements = [];
+
+            // 2. Descontar el dinero de la cuenta seleccionada para pagar (Gasto / Pago)
             appState.movements.push({
-                id: 'mov_debt_' + Date.now(),
+                id: 'mov_pay_out_' + Date.now(),
                 date: today,
                 type: 'Gasto',
                 concept: `Abono a deuda: ${debt.name}`,
                 category: 'Deudas',
-                accountId: accountId,
+                account: paymentAccount.name,
+                accountId: paymentAccount.id,
                 amount: -amount
             });
 
-            if (debt.connectedAccountId) {
+            // Registrar también en gastos generales
+            if (!appState.expenses) appState.expenses = [];
+            appState.expenses.push({
+                id: 'exp_' + Date.now(),
+                concept: `Abono a deuda: ${debt.name}`,
+                category: 'Deudas',
+                paymentMethod: paymentAccount.type,
+                accountId: paymentAccount.id,
+                amount: amount,
+                date: today
+            });
+
+            // 3. Si tiene cuenta vinculada (ej. Stori), el dinero abonado va a parar/ingresar a esa cuenta vinculada
+            if (connectedAccount) {
                 appState.movements.push({
-                    id: 'mov_debt_back_' + Date.now(),
+                    id: 'mov_pay_in_' + Date.now(),
                     date: today,
                     type: 'Ingreso',
-                    concept: `Retorno de línea por abono a ${debt.name}`,
-                    category: 'Crédito',
-                    accountId: debt.connectedAccountId,
+                    concept: `Recepción de abono en cuenta vinculada: ${debt.name}`,
+                    category: 'Deudas',
+                    account: connectedAccount.name,
+                    accountId: connectedAccount.id,
                     amount: amount
                 });
             }
 
+            if (debt.currentBalance === 0) {
+                appState.debts = appState.debts.filter(d => d.id !== debtId);
+                showToast(`¡Deuda liquidada! Se descontó de ${paymentAccount.name} y se acreditó a ${connectedAccount ? connectedAccount.name : 'la cuenta'}.`);
+            } else {
+                showToast(`Abono aplicado correctamente. Se descontó de ${paymentAccount.name} y se acreditó a ${connectedAccount ? connectedAccount.name : 'la cuenta'}.`);
+            }
+
             saveState();
             closePayDebtModal();
-            logAudit('Deudas', 'Abono', `Abono de $${amount} a deuda ${debt.name}`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
-            showToast('Abono registrado con éxito.');
             switchTab('deudas');
         }
 
         function deleteDebt(id) {
             appState.debts = appState.debts.filter(d => d.id !== id);
             saveState();
-            logAudit('Deudas', 'Eliminación', 'Eliminación de registro de deuda', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Deuda eliminada.');
             switchTab('deudas');
         }
 
         function renderMovimientos(container) {
-            let listMovs = (appState.movements || []).slice().reverse().map(m => `
+            let listMovs = appState.movements.slice().reverse().map(m => `
                 <tr class="border-b border-slate-100 dark:border-slate-700/50">
                     <td class="py-3 px-4 text-sm text-slate-500">${m.date}</td>
-                    <td class="py-3 px-4 text-sm font-semibold text-slate-900 dark:text-white">${m.concept}</td>
-                    <td class="py-3 px-4 text-sm"><span class="px-2 py-1 ${m.type === 'Ingreso' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} text-xs rounded-lg font-semibold">${m.type}</span></td>
-                    <td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">${m.account || 'General'}</td>
-                    <td class="py-3 px-4 text-sm font-bold ${m.amount >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${m.amount >= 0 ? '+' : ''}$${Number(m.amount).toLocaleString()}</td>
+                    <td class="py-3 px-4 text-sm"><span class="px-2 py-1 ${m.type === 'Ingreso' ? 'bg-emerald-50 text-emerald-600' : m.type === 'Disposición' ? 'bg-indigo-50 text-indigo-600' : 'bg-rose-50 text-rose-600'} text-xs font-semibold rounded-lg">${m.type}</span></td>
+                    <td class="py-3 px-4 font-semibold">${m.concept}</td>
+                    <td class="py-3 px-4 text-sm text-slate-500">${m.category}</td>
+                    <td class="py-3 px-4 text-sm text-slate-500">${m.account}</td>
+                    <td class="py-3 px-4 font-bold ${m.amount > 0 ? 'text-emerald-600' : 'text-rose-600'}">${m.amount > 0 ? '+' : ''}$${Number(m.amount).toLocaleString()}</td>
                 </tr>
             `).join('');
 
@@ -1989,14 +1750,15 @@
                             <thead>
                                 <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 uppercase">
                                     <th class="py-3 px-4">Fecha</th>
-                                    <th class="py-3 px-4">Concepto</th>
                                     <th class="py-3 px-4">Tipo</th>
+                                    <th class="py-3 px-4">Concepto</th>
+                                    <th class="py-3 px-4">Categoría</th>
                                     <th class="py-3 px-4">Cuenta</th>
                                     <th class="py-3 px-4">Monto</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${listMovs.length ? listMovs : `<tr><td colspan="5" class="py-4 text-center text-sm text-slate-400">No hay movimientos registrados</td></tr>`}
+                                ${listMovs.length ? listMovs : `<tr><td colspan="6" class="py-4 text-center text-sm text-slate-400">No hay movimientos registrados</td></tr>`}
                             </tbody>
                         </table>
                     </div>
@@ -2004,15 +1766,57 @@
             `;
         }
 
+        function renderAsesor(container) {
+            const totalMoney = getTotalAvailableMoney();
+            const totalDebts = getTotalPendingDebts();
+            const available = getAvailableToSpend();
+            
+            let advice = "Tus finanzas se encuentran en buen estado general.";
+            if (totalDebts > totalMoney) {
+                advice = "⚠️ Alerta: Tus deudas pendientes superan tu dinero disponible total. Te sugerimos priorizar el pago de deudas y evitar nuevos créditos.";
+            } else if (available < 2000) {
+                advice = "⚠️ Precaución: Tu dinero disponible para gastar es bajo en relación con tus compromisos.";
+            } else {
+                advice = "✅ Excelente salud financiera. Tienes buen margen de liquidez.";
+            }
+
+            container.innerHTML = `
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-3 text-indigo-600">
+                        <i class="fa-solid fa-robot text-2xl"></i>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-lg">Auditoría y Asesor Financiero IA</h3>
+                    </div>
+                    <div class="p-4 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl border border-indigo-100 dark:border-indigo-900/50 space-y-2">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm">Diagnóstico Actual</h4>
+                        <p class="text-sm text-slate-700 dark:text-slate-300">${advice}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="text-xs text-slate-500 uppercase">Liquidez Total</span>
+                            <div class="text-xl font-bold text-slate-900 dark:text-white mt-1">$${totalMoney.toLocaleString()}</div>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="text-xs text-slate-500 uppercase">Deudas Totales</span>
+                            <div class="text-xl font-bold text-rose-600 mt-1">$${totalDebts.toLocaleString()}</div>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="text-xs text-slate-500 uppercase">Libre para Gastar</span>
+                            <div class="text-xl font-bold text-emerald-600 mt-1">$${available.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderReportes(container) {
             container.innerHTML = `
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 max-w-xl">
-                    <div class="flex items-center space-x-3 text-indigo-600">
-                        <i class="fa-solid fa-file-pdf text-2xl"></i>
-                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Generador de Reportes Financieros en PDF</h3>
-                    </div>
-                    <p class="text-xs text-slate-500">Descarga un reporte profesional en PDF con el resumen de tus cuentas, ingresos, gastos y auditoría actual.</p>
-                    <button onclick="generatePDFReport()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer transition-all">Generar y Descargar PDF</button>
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Generación de Reportes en PDF</h3>
+                    <p class="text-sm text-slate-500">Descarga un reporte completo con el estado de tus cuentas, ingresos, gastos y deudas.</p>
+                    <button onclick="generatePDFReport()" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md transition-all cursor-pointer flex items-center space-x-2">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>Descargar Reporte Financiero PDF</span>
+                    </button>
                 </div>
             `;
         }
@@ -2020,59 +1824,70 @@
         function generatePDFReport() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-
             doc.setFontSize(18);
-            doc.text('Finanzas Personales Pro - Reporte Financiero', 14, 20);
-            doc.setFontSize(10);
-            doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 28);
+            doc.text("Reporte Financiero - Finanzas Personales Pro", 14, 20);
+            doc.setFontSize(11);
+            doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 28);
 
-            doc.autoTable({
-                startY: 35,
-                head: [['Resumen', 'Monto']],
-                body: [
-                    ['Dinero Disponible Total', `$${getTotalAvailableMoney().toLocaleString()}`],
-                    ['Disponible para Gastar', `$${getAvailableToSpend().toLocaleString()}`],
-                    ['Total Ingresos', `$${getTotalIncomes().toLocaleString()}`],
-                    ['Total Gastos', `$${getTotalExpenses().toLocaleString()}`],
-                    ['Deudas Pendientes', `$${getTotalPendingDebts().toLocaleString()}`]
-                ],
-                theme: 'grid'
-            });
+            doc.text("Resumen de Cuentas:", 14, 38);
+            let accData = appState.accounts.map(a => [a.name, a.type, `$${getAccountCurrentBalance(a.id).toLocaleString()}`]);
+            doc.autoTable({ startY: 42, head: [['Cuenta', 'Tipo', 'Saldo']], body: accData });
+
+            doc.text("Deudas Pendientes:", 14, doc.lastAutoTable.finalY + 10);
+            let debtData = appState.debts.map(d => [d.name, d.institution, `$${d.currentBalance.toLocaleString()}`]);
+            doc.autoTable({ startY: doc.lastAutoTable.finalY + 14, head: [['Deuda', 'Institución', 'Saldo Pendiente']], body: debtData });
 
             doc.save(`reporte_financiero_${new Date().toISOString().split('T')[0]}.pdf`);
-            logAudit('Reportes', 'Exportación PDF', 'Generación de reporte financiero en PDF', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
             showToast('Reporte PDF generado exitosamente.');
         }
 
         function renderSeguridad(container) {
             container.innerHTML = `
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 max-w-xl">
-                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Seguridad y Bloqueo</h3>
-                    <p class="text-xs text-slate-500">Bloquea la aplicación inmediatamente o utiliza el Panel de Administrador (contraseña 3312) para auditoría y configuraciones avanzadas.</p>
-                    <button onclick="lockApp()" class="py-2.5 px-5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Bloquear Sesión Ahora</button>
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 max-w-lg">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Seguridad y Acceso</h3>
+                    <form onsubmit="handlePasswordChange(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nueva Contraseña de Acceso</label>
+                            <input type="password" id="sec-new-pass" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Actualizar Contraseña</button>
+                    </form>
                 </div>
             `;
         }
 
+        function handlePasswordChange(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('sec-new-pass').value;
+            if (!newPass) return;
+            appState.password = newPass;
+            saveState();
+            showToast('Contraseña actualizada con éxito.');
+            document.getElementById('sec-new-pass').value = '';
+        }
+
         function renderRespaldo(container) {
             container.innerHTML = `
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 max-w-xl">
-                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Respaldo de Base de Datos</h3>
-                    <p class="text-xs text-slate-500">Exporta o importa toda tu información financiera en formato JSON de manera segura.</p>
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 max-w-lg">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Respaldo y Restauración</h3>
+                    <p class="text-sm text-slate-500">Puedes exportar toda tu base de datos o restaurarla desde un respaldo previo.</p>
                     <div class="flex space-x-3">
-                        <button onclick="adminExportBackup()" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm cursor-pointer">Respaldar JSON</button>
+                        <button onclick="adminExportBackup()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm cursor-pointer">Exportar Respaldo JSON</button>
                     </div>
                 </div>
             `;
         }
 
-        window.onload = function() {
-            const savedTheme = localStorage.getItem('finanzas_theme');
-            if (savedTheme === 'dark') {
-                document.documentElement.classList.add('dark');
-                updateThemeIcon(true);
-            }
-        };
+        if (localStorage.getItem('finanzas_theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+            updateThemeIcon(true);
+        }
+
+        if (appState.authenticated) {
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            switchTab('dashboard');
+        }
     </script>
 </body>
 </html>
