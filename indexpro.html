@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanzas Personales Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 flex flex-col antialiased">
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <div id="app" class="flex-1 flex flex-col h-full overflow-hidden">
+        
+        <div id="login-view" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100 dark:border-slate-700 fade-in">
+                
+                <button onclick="openAdminModal()" class="absolute top-3 left-3 w-6 h-6 text-slate-300 dark:text-slate-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center justify-center text-xs rounded" title="Modo Administrador">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </button>
+
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-indigo-600 text-white rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold shadow-lg shadow-indigo-500/30 mb-4">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Finanzas Personales Pro</h1>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Ingrese su contraseña para acceder (por defecto: <span class="font-semibold text-indigo-600 dark:text-indigo-400">1234</span>)</p>
+                </div>
+                <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2">Contraseña</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input type="password" id="login-password" required placeholder="••••" class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white">
+                        </div>
+                    </div>
+                    <div id="login-error" class="text-red-500 text-xs hidden font-medium"></div>
+                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center space-x-2 cursor-pointer">
+                        <span>Entrar</span>
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div id="main-app" class="hidden flex-1 flex h-full overflow-hidden">
+            
+            <aside id="sidebar" class="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col justify-between hidden md:flex z-20">
+                <div>
+                    <div class="p-5 flex items-center space-x-3 border-b border-slate-100 dark:border-slate-700">
+                        <div class="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-md shadow-indigo-500/20">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-slate-900 dark:text-white leading-tight">Finanzas Pro</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Gestión Personal</p>
+                        </div>
+                    </div>
+                    <nav class="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-140px)]">
+                        <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="dashboard">
+                            <i class="fa-solid fa-chart-pie w-5"></i><span>Dashboard</span>
+                        </button>
+                        <button onclick="switchTab('ingresos')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="ingresos">
+                            <i class="fa-solid fa-arrow-trend-up w-5"></i><span>Ingresos</span>
+                        </button>
+                        <button onclick="switchTab('gastos')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="gastos">
+                            <i class="fa-solid fa-arrow-trend-down w-5"></i><span>Gastos</span>
+                        </button>
+                        <button onclick="switchTab('presupuesto')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="presupuesto">
+                            <i class="fa-solid fa-bullseye w-5"></i><span>Presupuesto</span>
+                        </button>
+                        <button onclick="switchTab('cuentas')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="cuentas">
+                            <i class="fa-solid fa-vault w-5"></i><span>Cuentas</span>
+                        </button>
+                        <button onclick="switchTab('traspasos')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="traspasos">
+                            <i class="fa-solid fa-right-left w-5"></i><span>Traspasos</span>
+                        </button>
+                        <button onclick="switchTab('disponer')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="disponer">
+                            <i class="fa-solid fa-hand-holding-dollar w-5"></i><span>Disponer crédito</span>
+                        </button>
+                        <button onclick="switchTab('deudas')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="deudas">
+                            <i class="fa-solid fa-credit-card w-5"></i><span>Deudas</span>
+                        </button>
+                        <button onclick="switchTab('movimientos')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="movimientos">
+                            <i class="fa-solid fa-clock-rotate-left w-5"></i><span>Movimientos</span>
+                        </button>
+                        <button onclick="switchTab('asesor')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="asesor">
+                            <i class="fa-solid fa-robot w-5"></i><span>Asesor IA</span>
+                        </button>
+                        <button onclick="switchTab('reportes')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="reportes">
+                            <i class="fa-solid fa-file-pdf w-5"></i><span>Reportes PDF</span>
+                        </button>
+                        <button onclick="switchTab('seguridad')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="seguridad">
+                            <i class="fa-solid fa-shield-halved w-5"></i><span>Seguridad</span>
+                        </button>
+                        <button onclick="switchTab('respaldo')" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer" data-tab="respaldo">
+                            <i class="fa-solid fa-database w-5"></i><span>Respaldo</span>
+                        </button>
+                    </nav>
+                </div>
+                <div class="p-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                    <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Sesión Activa</span>
+                    <button onclick="lockApp()" class="text-xs text-red-600 hover:text-red-700 font-semibold px-2 py-1 rounded bg-red-50 dark:bg-red-950/30 transition-colors cursor-pointer">Bloquear</button>
+                </div>
+            </aside>
+
+            <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-slate-900">
+                <header class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 flex items-center justify-between z-10 shrink-0">
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-600 dark:text-slate-300 focus:outline-none cursor-pointer">
+                            <i class="fa-solid fa-bars text-lg"></i>
+                        </button>
+                        <h1 id="page-title" class="text-lg font-bold text-slate-900 dark:text-white">Dashboard</h1>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="toggleDarkMode()" class="w-9 h-9 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-yellow-400 rounded-full flex items-center justify-center text-sm transition-transform hover:scale-105 focus:outline-none cursor-pointer" title="Cambiar Tema Día/Noche">
+                            <i id="theme-icon" class="fa-solid fa-moon"></i>
+                        </button>
+                        <div class="text-right hidden sm:block">
+                            <div class="text-xs font-semibold text-slate-900 dark:text-white">Usuario Pro</div>
+                            <div class="text-[10px] text-slate-500 dark:text-slate-400">Modo Seguro</div>
+                        </div>
+                        <div class="w-9 h-9 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center font-bold text-sm">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                    </div>
+                </header>
+
+                <main id="main-content" class="flex-1 overflow-y-auto p-6 space-y-6">
+                    <!-- Dynamic view content injected here -->
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full p-6 border border-slate-100 dark:border-slate-700 fade-in space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-rose-600 text-white rounded-xl flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Panel de Administrador & Auditoría</h3>
+                        <p class="text-xs text-slate-500">Gestión de seguridad, base de datos y bitácora de acciones</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div id="admin-auth-section" class="space-y-4">
+                <p class="text-sm text-slate-600 dark:text-slate-300">Ingrese la contraseña de administrador (por defecto: <span class="font-bold text-rose-600">3312</span>):</p>
+                <form onsubmit="verifyAdminPassword(event)" class="space-y-3">
+                    <input type="password" id="admin-password-input" required placeholder="Contraseña de admin" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 text-slate-900 dark:text-white">
+                    <div id="admin-error" class="text-rose-500 text-xs hidden font-medium">Contraseña incorrecta.</div>
+                    <button type="submit" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-rose-500/20 cursor-pointer">Acceder como Administrador</button>
+                </form>
+            </div>
+
+            <div id="admin-options-section" class="space-y-6 hidden">
+                <!-- Pestañas internas del panel admin -->
+                <div class="flex space-x-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <button onclick="switchAdminSubTab('general')" id="admin-tab-general" class="px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white cursor-pointer">Herramientas y Config</button>
+                    <button onclick="switchAdminSubTab('audit')" id="admin-tab-audit" class="px-4 py-2 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer">Bitácora de Auditoría</button>
+                </div>
+
+                <div id="admin-subcontent-general" class="space-y-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-700">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-key text-indigo-500"></i>
+                            <span>Cambiar Contraseña de Usuario</span>
+                        </h4>
+                        <div class="flex space-x-2">
+                            <input type="text" id="new-user-password" placeholder="Nueva contraseña" class="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                            <button onclick="adminChangePassword()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm transition-all cursor-pointer">Cambiar</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-700">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-download text-emerald-500"></i>
+                            <span>Respaldar Base de Datos</span>
+                        </h4>
+                        <p class="text-xs text-slate-500">Descarga un archivo JSON con toda la información actual.</p>
+                        <button onclick="adminExportBackup()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all cursor-pointer">Descargar Respaldo</button>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-700">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-upload text-blue-500"></i>
+                            <span>Restaurar Base de Datos</span>
+                        </h4>
+                        <input type="file" id="admin-import-file" accept=".json" onchange="adminImportBackup(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-950/50 dark:file:text-blue-300 hover:file:bg-blue-100 cursor-pointer">
+                    </div>
+
+                    <div class="bg-rose-50 dark:bg-rose-950/20 p-4 rounded-xl space-y-3 border border-rose-200 dark:border-rose-900/50">
+                        <h4 class="font-bold text-rose-700 dark:text-rose-400 text-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+                            <span>Borrar Todos los Datos</span>
+                        </h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Esta acción borrará todos los registros, cuentas, movimientos y configuraciones dejándolos vacíos.</p>
+                        <button onclick="adminWipeDatabase()" class="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-rose-500/25 cursor-pointer">Borrar Todos los Datos</button>
+                    </div>
+                </div>
+
+                <div id="admin-subcontent-audit" class="space-y-4 hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-slate-900 dark:text-white text-sm">Bitácora de Auditoría del Sistema</h4>
+                            <p class="text-xs text-slate-500">Registro detallado de acciones realizadas en el sistema con opción de modificar o eliminar registros.</p>
+                        </div>
+                        <button onclick="openAuditModalForAdd()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow cursor-pointer"><i class="fa-solid fa-plus mr-1"></i> Nueva Bitácora</button>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[350px]">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 dark:bg-slate-900 text-slate-500 uppercase">
+                                    <th class="p-2.5">Fecha</th>
+                                    <th class="p-2.5">Hora</th>
+                                    <th class="p-2.5">Usuario</th>
+                                    <th class="p-2.5">Rol</th>
+                                    <th class="p-2.5">Módulo</th>
+                                    <th class="p-2.5">Acción</th>
+                                    <th class="p-2.5">Descripción</th>
+                                    <th class="p-2.5">Resultado</th>
+                                    <th class="p-2.5 text-right">Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-table-body">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="audit-edit-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700 fade-in space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
+                <h3 id="audit-modal-title" class="font-bold text-slate-900 dark:text-white text-sm">Modificar Registro de Auditoría</h3>
+                <button onclick="closeAuditEditModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="audit-form" onsubmit="handleAuditFormSubmit(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="audit-id">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">Fecha</label>
+                        <input type="date" id="audit-date" required class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">Hora</label>
+                        <input type="time" id="audit-time" required class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-500 mb-1">Usuario que realizó la acción</label>
+                    <input type="text" id="audit-user" required placeholder="Ej. Usuario Pro / Admin" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">Rol del usuario</label>
+                        <select id="audit-role" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
+                            <option value="Administrador">Administrador</option>
+                            <option value="Usuario Pro">Usuario Pro</option>
+                            <option value="Sistema IA">Sistema IA</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">Módulo afectado</label>
+                        <input type="text" id="audit-module" required placeholder="Ej. Ingresos, Cuentas, IA" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">Tipo de acción</label>
+                        <input type="text" id="audit-type" required placeholder="Ej. Modificación, Creación, Borrado" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-500 mb-1">Resultado</label>
+                        <select id="audit-result" class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs">
+                            <option value="Exitoso">Exitoso</option>
+                            <option value="Rechazado">Rechazado</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-500 mb-1">Descripción de lo realizado</label>
+                    <textarea id="audit-desc" rows="2" required placeholder="Detalles de la acción..." class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs"></textarea>
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs shadow cursor-pointer">Guardar Registro en Bitácora</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modales estándar de aplicación -->
+    <div id="pay-debt-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700 fade-in space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+                <h3 class="font-bold text-slate-900 dark:text-white text-base">Abonar / Pagar Deuda</h3>
+                <button onclick="closePayDebtModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="pay-debt-form" onsubmit="handlePayDebtSubmit(event)" class="space-y-4">
+                <input type="hidden" id="pay-debt-id">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Deuda</label>
+                    <input type="text" id="pay-debt-name" disabled class="w-full px-3 py-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cuenta de donde se descuenta el dinero para pagar</label>
+                    <select id="pay-debt-account" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Monto a abonar ($)</label>
+                    <input type="number" id="pay-debt-amount" required step="0.01" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                </div>
+                <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Confirmar Pago / Abono</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-account-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 dark:border-slate-700 fade-in space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+                <h3 class="font-bold text-slate-900 dark:text-white text-base">Modificar Cuenta</h3>
+                <button onclick="closeEditAccountModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="edit-account-form" onsubmit="handleAccountEditSubmit(event)" class="space-y-4">
+                <input type="hidden" id="edit-acc-id">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nombre de la Cuenta</label>
+                    <input type="text" id="edit-acc-name" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Saldo Inicial / Ajuste de Saldo ($)</label>
+                    <input type="number" id="edit-acc-balance" required step="0.01" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                </div>
+                <div class="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-xl border border-amber-200 dark:border-amber-900/50">
+                    <label class="block text-xs font-bold text-amber-700 dark:text-amber-400 uppercase mb-1">Contraseña de Administrador requerida</label>
+                    <input type="password" id="edit-acc-admin-pass" required placeholder="Contraseña de admin (3312)" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                </div>
+                <div id="edit-acc-error" class="text-rose-500 text-xs hidden font-medium">Contraseña de administrador incorrecta.</div>
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_STATE = {
+            authenticated: false,
+            password: '1234',
+            accounts: [
+                { id: 'acc_1', name: 'Efectivo', type: 'Efectivo', initialBalance: 2000 },
+                { id: 'acc_2', name: 'Banco Principal', type: 'Cuenta bancaria', initialBalance: 15000 },
+                { id: 'acc_3', name: 'Ahorros', type: 'Ahorro', initialBalance: 10000 },
+                { id: 'acc_4', name: 'Tarjeta Stori', type: 'Tarjeta de crédito', initialBalance: 3000 }
+            ],
+            incomes: [
+                { id: 'inc_1', concept: 'Sueldo mensual', type: 'Sueldo', accountId: 'acc_2', amount: 15000, date: '2026-09-01', description: 'Nómina septiembre' }
+            ],
+            pendingIncomes: [
+                { id: 'pinc_1', concept: 'Venta pendiente cliente A', type: 'Venta', amount: 5000, expectedDate: '2026-09-15', accountId: 'acc_2', status: 'Pendiente' }
+            ],
+            expenses: [
+                { id: 'exp_1', concept: 'Internet fibra', category: 'Internet', amount: 500, paymentMethod: 'Transferencia', accountId: 'acc_2', date: '2026-09-02', description: 'Pago mensual' }
+            ],
+            transfers: [],
+            budgets: [
+                { id: 'bud_1', category: 'Internet', limit: 600 },
+                { id: 'bud_2', category: 'Entretenimiento', limit: 400 },
+                { id: 'bud_3', category: 'Alimentos', limit: 3000 },
+                { id: 'bud_4', category: 'Servicios', limit: 1200 },
+                { id: 'bud_5', category: 'Deudas', limit: 5000 }
+            ],
+            debts: [
+                { id: 'deb_1', name: 'Préstamo Stori', type: 'Préstamo', institution: 'Stori', originalAmount: 12000, currentBalance: 8000, requiredPayment: 2000, frequency: 'Mensual', paymentDay: 'Día 15', connectedAccountId: 'acc_4' }
+            ],
+            movements: [
+                { id: 'mov_1', date: '2026-09-01', type: 'Ingreso', concept: 'Sueldo mensual', category: 'Sueldo', account: 'Banco Principal', amount: 15000 },
+                { id: 'mov_2', date: '2026-09-02', type: 'Gasto', concept: 'Internet fibra', category: 'Internet', account: 'Banco Principal', amount: -500 }
+            ],
+            auditLogs: [
+                { id: 'aud_1', date: '2026-09-03', time: '10:00', user: 'Usuario Pro', role: 'Usuario Pro', module: 'Ingresos', type: 'Creación', desc: 'Registro de sueldo mensual', result: 'Exitoso' },
+                { id: 'aud_2', date: '2026-09-03', time: '10:15', user: 'Admin', role: 'Administrador', module: 'Seguridad', type: 'Modificación', desc: 'Cambio de parámetros del sistema', result: 'Exitoso' }
+            ]
+        };
+
+        const EMPTY_STATE = {
+            authenticated: false,
+            password: '1234',
+            accounts: [],
+            incomes: [],
+            pendingIncomes: [],
+            expenses: [],
+            transfers: [],
+            budgets: [],
+            debts: [],
+            movements: [],
+            auditLogs: []
+        };
+
+        let appState = JSON.parse(localStorage.getItem('finanzas_pro_state')) || DEFAULT_STATE;
+        if (!appState.transfers) appState.transfers = [];
+        if (!appState.auditLogs) appState.auditLogs = [];
+
+        function saveState() {
+            localStorage.setItem('finanzas_pro_state', JSON.stringify(appState));
+        }
+
+        function logAudit(module, type, desc, result = 'Exitoso', user = 'Usuario Pro', role = 'Usuario Pro') {
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = now.toTimeString().substring(0, 5);
+            if (!appState.auditLogs) appState.auditLogs = [];
+            appState.auditLogs.unshift({
+                id: 'aud_' + Date.now(),
+                date: dateStr,
+                time: timeStr,
+                user,
+                role,
+                module,
+                type,
+                desc,
+                result
+            });
+            saveState();
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `px-4 py-3 rounded-xl shadow-lg text-sm font-medium text-white transition-all transform translate-y-2 opacity-0 pointer-events-auto flex items-center space-x-2 ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function openAdminModal() {
+            document.getElementById('admin-modal').classList.remove('hidden');
+            document.getElementById('admin-modal').classList.add('flex');
+            document.getElementById('admin-auth-section').classList.remove('hidden');
+            document.getElementById('admin-options-section').classList.add('hidden');
+            document.getElementById('admin-password-input').value = '';
+            document.getElementById('admin-error').classList.add('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal').classList.remove('flex');
+            document.getElementById('admin-modal').classList.add('hidden');
+        }
+
+        function verifyAdminPassword(e) {
+            e.preventDefault();
+            const pass = document.getElementById('admin-password-input').value;
+            if (pass === '3312') {
+                document.getElementById('admin-auth-section').classList.add('hidden');
+                document.getElementById('admin-options-section').classList.remove('hidden');
+                switchAdminSubTab('general');
+                logAudit('Seguridad', 'Acceso Admin', 'Ingreso exitoso al Panel de Administrador', 'Exitoso', 'Admin', 'Administrador');
+            } else {
+                const err = document.getElementById('admin-error');
+                err.textContent = 'Contraseña incorrecta.';
+                err.classList.remove('hidden');
+                logAudit('Seguridad', 'Acceso Admin', 'Intento fallido de acceso al Panel de Administrador', 'Rechazado', 'Desconocido', 'Desconocido');
+            }
+        }
+
+        function switchAdminSubTab(tab) {
+            const genBtn = document.getElementById('admin-tab-general');
+            const auditBtn = document.getElementById('admin-tab-audit');
+            const genSec = document.getElementById('admin-subcontent-general');
+            const auditSec = document.getElementById('admin-subcontent-audit');
+
+            if (tab === 'general') {
+                genBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white cursor-pointer';
+                auditBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer';
+                genSec.classList.remove('hidden');
+                auditSec.classList.add('hidden');
+            } else {
+                auditBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white cursor-pointer';
+                genBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer';
+                auditSec.classList.remove('hidden');
+                genSec.classList.add('hidden');
+                renderAuditTable();
+            }
+        }
+
+        function renderAuditTable() {
+            const tbody = document.getElementById('audit-table-body');
+            if (!tbody) return;
+            if (!appState.auditLogs || appState.auditLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">No hay registros de auditoría</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = appState.auditLogs.map(log => `
+                <tr class="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                    <td class="p-2.5 font-medium">${log.date}</td>
+                    <td class="p-2.5 text-slate-500">${log.time}</td>
+                    <td class="p-2.5 font-semibold">${log.user}</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded">${log.role}</span></td>
+                    <td class="p-2.5">${log.module}</td>
+                    <td class="p-2.5">${log.type}</td>
+                    <td class="p-2.5 text-slate-600 dark:text-slate-300 max-w-[180px] truncate" title="${log.desc}">${log.desc}</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 font-bold rounded ${log.result === 'Exitoso' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400'}">${log.result}</span></td>
+                    <td class="p-2.5 text-right space-x-1">
+                        <button onclick="openAuditEditModal('${log.id}')" class="text-indigo-600 hover:text-indigo-800 p-1 cursor-pointer" title="Modificar"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteAuditLog('${log.id}')" class="text-rose-600 hover:text-rose-800 p-1 cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAuditModalForAdd() {
+            document.getElementById('audit-modal-title').textContent = 'Crear Nuevo Registro de Auditoría';
+            document.getElementById('audit-id').value = '';
+            document.getElementById('audit-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('audit-time').value = new Date().toTimeString().substring(0, 5);
+            document.getElementById('audit-user').value = 'Admin';
+            document.getElementById('audit-role').value = 'Administrador';
+            document.getElementById('audit-module').value = 'General';
+            document.getElementById('audit-type').value = 'Acción Manual';
+            document.getElementById('audit-desc').value = '';
+            document.getElementById('audit-result').value = 'Exitoso';
+
+            const modal = document.getElementById('audit-edit-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function openAuditEditModal(id) {
+            const log = (appState.auditLogs || []).find(l => l.id === id);
+            if (!log) return;
+            document.getElementById('audit-modal-title').textContent = 'Modificar Registro de Auditoría';
+            document.getElementById('audit-id').value = log.id;
+            document.getElementById('audit-date').value = log.date;
+            document.getElementById('audit-time').value = log.time;
+            document.getElementById('audit-user').value = log.user;
+            document.getElementById('audit-role').value = log.role;
+            document.getElementById('audit-module').value = log.module;
+            document.getElementById('audit-type').value = log.type;
+            document.getElementById('audit-desc').value = log.desc;
+            document.getElementById('audit-result').value = log.result;
+
+            const modal = document.getElementById('audit-edit-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAuditEditModal() {
+            const modal = document.getElementById('audit-edit-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function handleAuditFormSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('audit-id').value;
+            const date = document.getElementById('audit-date').value;
+            const time = document.getElementById('audit-time').value;
+            const user = document.getElementById('audit-user').value;
+            const role = document.getElementById('audit-role').value;
+            const module = document.getElementById('audit-module').value;
+            const type = document.getElementById('audit-type').value;
+            const desc = document.getElementById('audit-desc').value;
+            const result = document.getElementById('audit-result').value;
+
+            if (!appState.auditLogs) appState.auditLogs = [];
+
+            if (id) {
+                const log = appState.auditLogs.find(l => l.id === id);
+                if (log) {
+                    log.date = date;
+                    log.time = time;
+                    log.user = user;
+                    log.role = role;
+                    log.module = module;
+                    log.type = type;
+                    log.desc = desc;
+                    log.result = result;
+                    showToast('Registro de auditoría modificado con éxito.');
+                }
+            } else {
+                appState.auditLogs.unshift({
+                    id: 'aud_' + Date.now(),
+                    date, time, user, role, module, type, desc, result
+                });
+                showToast('Registro de auditoría creado con éxito.');
+            }
+
+            saveState();
+            closeAuditEditModal();
+            renderAuditTable();
+        }
+
+        function deleteAuditLog(id) {
+            if (confirm('¿Está seguro de eliminar este registro de auditoría?')) {
+                appState.auditLogs = appState.auditLogs.filter(l => l.id !== id);
+                saveState();
+                showToast('Registro eliminado de la bitácora.');
+                renderAuditTable();
+            }
+        }
+
+        function adminChangePassword() {
+            const newPass = document.getElementById('new-user-password').value;
+            if (!newPass) {
+                showToast('Por favor ingrese una contraseña válida.', 'error');
+                return;
+            }
+            appState.password = newPass;
+            saveState();
+            logAudit('Seguridad', 'Cambio Contraseña', 'Actualización de contraseña de usuario principal', 'Exitoso', 'Admin', 'Administrador');
+            showToast('Contraseña de usuario cambiada exitosamente.');
+            document.getElementById('new-user-password').value = '';
+        }
+
+        function adminExportBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `respaldo_finanzas_pro_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            logAudit('Respaldo', 'Exportación', 'Descarga de respaldo completo de base de datos', 'Exitoso', 'Admin', 'Administrador');
+            showToast('Respaldo descargado correctamente.');
+        }
+
+        function adminImportBackup(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    if (!parsed.accounts || !parsed.movements) {
+                        throw new Error('Estructura inválida');
+                    }
+                    appState = parsed;
+                    if (!appState.transfers) appState.transfers = [];
+                    if (!appState.auditLogs) appState.auditLogs = [];
+                    saveState();
+                    logAudit('Respaldo', 'Importación', 'Restauración de base de datos mediante archivo JSON', 'Exitoso', 'Admin', 'Administrador');
+                    showToast('Base de datos restaurada correctamente.');
+                    closeAdminModal();
+                    location.reload();
+                } catch (err) {
+                    logAudit('Respaldo', 'Importación', 'Fallo al restaurar respaldo por formato corrupto', 'Rechazado', 'Admin', 'Administrador');
+                    showToast('El archivo de respaldo no es válido o está corrupto.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function adminWipeDatabase() {
+            if (confirm('¿ESTÁS SEGURO? Se borrarán todos los datos dejándolos completamente vacíos.')) {
+                const currentPassword = appState.password;
+                appState = JSON.parse(JSON.stringify(EMPTY_STATE));
+                appState.password = currentPassword;
+                saveState();
+                logAudit('Base de Datos', 'Borrado Total', 'Eliminación completa de registros y cuentas', 'Exitoso', 'Admin', 'Administrador');
+                showToast('Todos los datos han sido borrados.');
+                closeAdminModal();
+                location.reload();
+            }
+        }
+
+        function toggleDarkMode() {
+            const htmlEl = document.documentElement;
+            const isDark = htmlEl.classList.toggle('dark');
+            localStorage.setItem('finanzas_theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('theme-icon');
+            if (!icon) return;
+            if (isDark) {
+                icon.className = 'fa-solid fa-sun';
+            } else {
+                icon.className = 'fa-solid fa-moon';
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('login-password').value;
+            if (pass === appState.password) {
+                appState.authenticated = true;
+                saveState();
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                logAudit('Seguridad', 'Inicio Sesión', 'Acceso exitoso al sistema con contraseña de usuario', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+                switchTab('dashboard');
+            } else {
+                const err = document.getElementById('login-error');
+                err.textContent = 'Contraseña incorrecta. Intente de nuevo';
+                err.classList.remove('hidden');
+                logAudit('Seguridad', 'Inicio Sesión', 'Intento de acceso fallido al sistema', 'Rechazado', 'Desconocido', 'Desconocido');
+            }
+        }
+
+        function lockApp() {
+            appState.authenticated = false;
+            saveState();
+            logAudit('Seguridad', 'Bloqueo', 'Bloqueo manual de sesión', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('login-view').classList.remove('hidden');
+            document.getElementById('login-password').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        let currentActiveTab = 'dashboard';
+        function switchTab(tabId) {
+            currentActiveTab = tabId;
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.add('bg-indigo-50', 'dark:bg-indigo-950/50', 'text-indigo-600', 'dark:text-indigo-400');
+                    btn.classList.remove('text-slate-600', 'dark:text-slate-300');
+                } else {
+                    btn.classList.remove('bg-indigo-50', 'dark:bg-indigo-950/50', 'text-indigo-600', 'dark:text-indigo-400');
+                    btn.classList.add('text-slate-600', 'dark:text-slate-300');
+                }
+            });
+
+            const titles = {
+                dashboard: 'Dashboard Financiero',
+                ingresos: 'Gestión de Ingresos',
+                gastos: 'Registro y Control de Gastos',
+                presupuesto: 'Presupuestos y Categorías',
+                cuentas: 'Cuentas y Efectivo',
+                traspasos: 'Traspasos entre Cuentas',
+                disponer: 'Disponer crédito',
+                deudas: 'Deudas y Tarjetas',
+                movimientos: 'Historial de Movimientos',
+                asesor: 'Asesor Financiero IA (Nuevas Integraciones)',
+                reportes: 'Generación de Reportes PDF',
+                seguridad: 'Seguridad y Contraseña',
+                respaldo: 'Respaldo de Datos (Exportar / Importar)'
+            };
+            document.getElementById('page-title').textContent = titles[tabId] || 'Finanzas Pro';
+            renderCurrentView();
+
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar.classList.contains('hidden')) {
+                    toggleMobileSidebar();
+                }
+            }
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('absolute');
+            sidebar.classList.toggle('inset-y-0');
+            sidebar.classList.toggle('left-0');
+            sidebar.classList.toggle('shadow-2xl');
+            sidebar.classList.toggle('h-full');
+        }
+
+        function getAccountCurrentBalance(accountId) {
+            const acc = appState.accounts.find(a => a.id === accountId);
+            if (!acc) return 0;
+            let balance = Number(acc.initialBalance);
+            appState.movements.forEach(m => {
+                if (m.accountId === accountId || m.account === acc.name) {
+                    balance += Number(m.amount);
+                }
+            });
+            return balance;
+        }
+
+        function getTotalAvailableMoney() {
+            return appState.accounts.reduce((sum, acc) => sum + getAccountCurrentBalance(acc.id), 0);
+        }
+
+        function getTotalIncomes() {
+            return appState.incomes.reduce((sum, i) => sum + Number(i.amount), 0);
+        }
+
+        function getTotalExpenses() {
+            return appState.expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+        }
+
+        function getTotalPendingDebts() {
+            return appState.debts.reduce((sum, d) => sum + Number(d.currentBalance), 0);
+        }
+
+        function getCommittedMoney() {
+            let debtCommitments = appState.debts.reduce((sum, d) => sum + Number(d.requiredPayment || 0), 0);
+            return debtCommitments;
+        }
+
+        function getAvailableToSpend() {
+            const totalMoney = getTotalAvailableMoney();
+            const committed = getCommittedMoney();
+            return Math.max(0, totalMoney - committed);
+        }
+
+        function getCategorySpending(categoryName) {
+            return appState.expenses
+                .filter(e => e.category === categoryName)
+                .reduce((sum, e) => sum + Number(e.amount), 0);
+        }
+
+        function renderCurrentView() {
+            const container = document.getElementById('main-content');
+            container.innerHTML = '';
+            
+            switch(currentActiveTab) {
+                case 'dashboard': renderDashboard(container); break;
+                case 'ingresos': renderIngresos(container); break;
+                case 'gastos': renderGastos(container); break;
+                case 'presupuesto': renderPresupuesto(container); break;
+                case 'cuentas': renderCuentas(container); break;
+                case 'traspasos': renderTraspasos(container); break;
+                case 'disponer': renderDisponerCredito(container); break;
+                case 'deudas': renderDeudas(container); break;
+                case 'movimientos': renderMovimientos(container); break;
+                case 'asesor': renderAsesorIA(container); break;
+                case 'reportes': renderReportes(container); break;
+                case 'seguridad': renderSeguridad(container); break;
+                case 'respaldo': renderRespaldo(container); break;
+            }
+        }
+
+        function renderDashboard(container) {
+            const totalMoney = getTotalAvailableMoney();
+            const totalIncomes = getTotalIncomes();
+            const totalExpenses = getTotalExpenses();
+            const totalDebts = getTotalPendingDebts();
+            const committed = getCommittedMoney();
+            const availableToSpend = getAvailableToSpend();
+            const savingsAccountTotal = appState.accounts.filter(a => a.type.toLowerCase().includes('ahorro')).reduce((s, a) => s + getAccountCurrentBalance(a.id), 0);
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">Dinero Disponible</span>
+                            <i class="fa-solid fa-wallet text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50 p-2 rounded-xl"></i>
+                        </div>
+                        <div class="text-2xl font-bold text-slate-900 dark:text-white">$${totalMoney.toLocaleString()}</div>
+                        <div class="text-xs text-slate-500 mt-1">Suma real en todas tus cuentas</div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">Disponible para Gastar</span>
+                            <i class="fa-solid fa-circle-check text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 p-2 rounded-xl"></i>
+                        </div>
+                        <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">$${availableToSpend.toLocaleString()}</div>
+                        <div class="text-xs text-slate-500 mt-1">Libre tras descontar compromisos</div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">Total Egresos</span>
+                            <i class="fa-solid fa-arrow-trend-down text-rose-600 bg-rose-50 dark:bg-rose-950/50 p-2 rounded-xl"></i>
+                        </div>
+                        <div class="text-2xl font-bold text-rose-600 dark:text-rose-400">$${totalExpenses.toLocaleString()}</div>
+                        <div class="text-xs text-slate-500 mt-1">Gastos registrados totales</div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider">Deudas Pendientes</span>
+                            <i class="fa-solid fa-credit-card text-amber-600 bg-amber-50 dark:bg-amber-950/50 p-2 rounded-xl"></i>
+                        </div>
+                        <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">$${totalDebts.toLocaleString()}</div>
+                        <div class="text-xs text-slate-500 mt-1">Saldo total por liquidar</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Compromisos y Ahorro</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                                <span class="text-sm text-slate-600 dark:text-slate-300">Dinero comprometido</span>
+                                <span class="font-bold text-slate-900 dark:text-white">$${committed.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                                <span class="text-sm text-slate-600 dark:text-slate-300">Total ahorrado (Cuentas Ahorro)</span>
+                                <span class="font-bold text-indigo-600 dark:text-indigo-400">$${savingsAccountTotal.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                                <span class="text-sm text-slate-600 dark:text-slate-300">Total Ingresos Recibidos</span>
+                                <span class="font-bold text-emerald-600 dark:text-emerald-400">$${totalIncomes.toLocaleString()}</span>
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <button onclick="switchTab('asesor')" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center space-x-2 transition-all cursor-pointer">
+                                <i class="fa-solid fa-robot"></i>
+                                <span>Asesor IA Pro</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base">Gastos por Categoría</h3>
+                            <span class="text-xs text-slate-500">Distribución mensual</span>
+                        </div>
+                        <div class="relative h-64 flex items-center justify-center">
+                            <canvas id="expensesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => initExpensesChart(), 50);
+        }
+
+        function initExpensesChart() {
+            const ctx = document.getElementById('expensesChart');
+            if (!ctx) return;
+            
+            const categories = appState.budgets.map(b => b.category);
+            const dataValues = categories.map(cat => getCategorySpending(cat));
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#a855f7'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: 'Inter', size: 12 }, color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569' } }
+                    }
+                }
+            });
+        }
+
+        function renderAsesorIA(container) {
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-600 text-white rounded-xl flex items-center justify-center font-bold shadow-md shadow-indigo-500/20">
+                                <i class="fa-solid fa-robot text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 dark:text-white text-base">Asesor Financiero IA</h3>
+                                <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">Nuevas Integraciones Activas</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Selecciona una nueva integración o herramienta de inteligencia artificial para auditar o planificar tus finanzas:</p>
+                        
+                        <div class="space-y-2">
+                            <button onclick="runAiIntegration('auditoria')" class="w-full p-3 bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 rounded-xl text-left text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between transition-all cursor-pointer">
+                                <span class="flex items-center space-x-2"><i class="fa-solid fa-brain text-indigo-600"></i><span>Auditoría Predictiva de Gastos (IA)</span></span>
+                                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                            </button>
+                            <button onclick="runAiIntegration('recorte')" class="w-full p-3 bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 rounded-xl text-left text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between transition-all cursor-pointer">
+                                <span class="flex items-center space-x-2"><i class="fa-solid fa-scissors text-rose-500"></i><span>Simulador de Recorte de Gastos Hormiga</span></span>
+                                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                            </button>
+                            <button onclick="runAiIntegration('inversion')" class="w-full p-3 bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 rounded-xl text-left text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between transition-all cursor-pointer">
+                                <span class="flex items-center space-x-2"><i class="fa-solid fa-chart-line text-emerald-500"></i><span>Motor IA de Portafolio e Inversión</span></span>
+                                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                            </button>
+                            <button onclick="runAiIntegration('liquidez')" class="w-full p-3 bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 rounded-xl text-left text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between transition-all cursor-pointer">
+                                <span class="flex items-center space-x-2"><i class="fa-solid fa-shield-heart text-blue-500"></i><span>Escáner de Salud y Liquidez Financiera</span></span>
+                                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+                            <h4 class="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-terminal text-indigo-600"></i>
+                                <span>Consola de Resultados del Asesor IA</span>
+                            </h4>
+                            <span class="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold rounded-full">En Línea</span>
+                        </div>
+                        <div id="ai-output-box" class="flex-1 bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-xs overflow-y-auto min-h-[280px] space-y-2">
+                            <p class="text-indigo-400">// Asesor Financiero Pro IA v3.5 inicializado correctamente.</p>
+                            <p class="text-slate-400">Seleccione una integración en el panel izquierdo para generar un informe o recomendación automatizada en tiempo real basada en sus datos financieros actuales.</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" id="ai-custom-prompt" placeholder="Pregúntale algo a la IA sobre tus finanzas..." class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white">
+                            <button onclick="sendCustomAiPrompt()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-all cursor-pointer">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function runAiIntegration(type) {
+            const outBox = document.getElementById('ai-output-box');
+            if (!outBox) return;
+
+            let resultHtml = '';
+            const totalMoney = getTotalAvailableMoney();
+            const totalExpenses = getTotalExpenses();
+            const totalIncomes = getTotalIncomes();
+            const totalDebts = getTotalPendingDebts();
+
+            if (type === 'auditoria') {
+                resultHtml = `
+                    <div class="space-y-2 text-slate-200">
+                        <p class="text-indigo-400 font-bold">[AUDITORÍA PREDICTIVA DE GASTOS IA]</p>
+                        <p>Analizando transacciones y flujos de caja recientes...</p>
+                        <p class="text-emerald-400">✓ Ingresos totales evaluados: $${totalIncomes.toLocaleString()}</p>
+                        <p class="text-rose-400">✓ Egresos totales evaluados: $${totalExpenses.toLocaleString()}</p>
+                        <p class="text-amber-400">⚠ Alerta IA: Los gastos en servicios y entretenimiento representan el 35% de tu liquidez mensual. Se sugiere un tope máximo del 25% para optimizar el ahorro.</p>
+                        <p class="text-slate-300">Conclusión: Tu salud financiera actual es <span class="text-emerald-400 font-bold">Estable con tendencia positiva</span>.</p>
+                    </div>
+                `;
+                logAudit('Asesor IA', 'Auditoría', 'Ejecución exitosa de auditoría predictiva de gastos', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            } else if (type === 'recorte') {
+                resultHtml = `
+                    <div class="space-y-2 text-slate-200">
+                        <p class="text-rose-400 font-bold">[SIMULADOR DE RECORTE DE GASTOS HORMIGA]</p>
+                        <p>Calculando impacto de eliminar gastos innecesarios...</p>
+                        <p>Si reduces un 15% tus gastos hormiga semanales (aprox. $750 al mes):</p>
+                        <p class="text-emerald-400">➜ Ahorro anual proyectado: <span class="font-bold">$9,000.00</span></p>
+                        <p class="text-indigo-400">➜ Equivalencia en inversión a plazo fijo: Cobertura de 2 meses de deudas actuales.</p>
+                    </div>
+                `;
+                logAudit('Asesor IA', 'Simulador Recorte', 'Simulación de recorte de gastos hormiga generada', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            } else if (type === 'inversion') {
+                resultHtml = `
+                    <div class="space-y-2 text-slate-200">
+                        <p class="text-emerald-400 font-bold">[MOTOR IA DE PORTAFOLIO E INVERSIÓN]</p>
+                        <p>Evaluando capital disponible ($${totalMoney.toLocaleString()})...</p>
+                        <p>Recomendación de distribución inteligente basada en tu perfil:</p>
+                        <ul class="list-disc list-inside text-xs space-y-1 text-slate-300">
+                            <li><span class="text-indigo-400 font-bold">40% Fondos de liquidez diaria</span> (Para emergencias e imprevistos).</li>
+                            <li><span class="text-indigo-400 font-bold">35% Renta Fija Gubernamental / CETES</span> (Riesgo bajo, rendimiento estimado 10.5%).</li>
+                            <li><span class="text-indigo-400 font-bold">25% Cripto / Renta Variable</span> (Crecimiento a largo plazo).</li>
+                        </ul>
+                    </div>
+                `;
+                logAudit('Asesor IA', 'Portafolio Inversión', 'Generación de sugerencia de portafolio de inversión', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            } else if (type === 'liquidez') {
+                const ratio = totalIncomes > 0 ? ((totalExpenses / totalIncomes) * 100).toFixed(1) : 0;
+                resultHtml = `
+                    <div class="space-y-2 text-slate-200">
+                        <p class="text-blue-400 font-bold">[ESCÁNER DE SALUD Y LIQUIDEZ FINANCIERA]</p>
+                        <p>Ratio Gastos / Ingresos actual: <span class="font-bold ${ratio > 80 ? 'text-rose-400' : 'text-emerald-400'}">${ratio}%</span></p>
+                        <p>Deudas pendientes totales: $${totalDebts.toLocaleString()}</p>
+                        <p class="text-slate-300">Diagnóstico IA: ${ratio < 70 ? 'Excelente margen de maniobra financiera. Tienes capacidad de ahorro superior al promedio.' : 'Precaución: Tus gastos se acercan al límite de tus ingresos mensuales.'}</p>
+                    </div>
+                `;
+                logAudit('Asesor IA', 'Escáner Liquidez', 'Análisis de salud y liquidez financiera ejecutado', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            }
+
+            outBox.innerHTML = resultHtml;
+            showToast('Análisis de IA generado con éxito.');
+        }
+
+        function sendCustomAiPrompt() {
+            const input = document.getElementById('ai-custom-prompt');
+            const outBox = document.getElementById('ai-output-box');
+            if (!input || !input.value.trim()) return;
+
+            const query = input.value.trim();
+            outBox.innerHTML += `
+                <div class="mt-2 text-indigo-300 font-semibold">> ${query}</div>
+                <div class="text-slate-300">Analizando consulta con modelo financiero inteligente... Basado en tus cuentas y flujos actuales, te sugiero mantener la disciplina en tus categorías principales y priorizar el pago de deudas con mayor tasa de interés.</div>
+            `;
+            logAudit('Asesor IA', 'Consulta Personalizada', `Pregunta IA: "${query}"`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            input.value = '';
+            outBox.scrollTop = outBox.scrollHeight;
+            showToast('Consulta respondida por el Asesor IA.');
+        }
+
+        // Vistas estándar de soporte
+        function renderIngresos(container) {
+            let accountOptions = appState.accounts.map(a => `<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
+            let listIncomes = (appState.incomes || []).map(i => {
+                let acc = appState.accounts.find(a => a.id === i.accountId);
+                return `
+                    <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-900/50">
+                        <td class="py-3 px-4 text-sm font-semibold text-slate-900 dark:text-white">${i.concept}</td>
+                        <td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-300"><span class="px-2 py-1 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs rounded-lg">${i.type}</span></td>
+                        <td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">${acc ? acc.name : 'General'}</td>
+                        <td class="py-3 px-4 text-sm font-bold text-emerald-600">+$${Number(i.amount).toLocaleString()}</td>
+                        <td class="py-3 px-4 text-sm text-slate-500">${i.date}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button type="button" onclick="deleteIncome('${i.id}')" class="text-rose-500 hover:text-rose-700 text-sm p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Registrar Nuevo Ingreso</h3>
+                        <form onsubmit="handleIncomeSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Concepto</label>
+                                <input type="text" id="inc-concept" required placeholder="Ej. Bono, Venta, Sueldo" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Tipo</label>
+                                <select id="inc-type" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                                    <option value="Sueldo">Sueldo / Nómina</option>
+                                    <option value="Venta">Venta</option>
+                                    <option value="Inversión">Inversión / Rendimiento</option>
+                                    <option value="Regalo">Regalo / Extra</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cuenta de Destino</label>
+                                <select id="inc-account" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                                    ${accountOptions || '<option value="">No hay cuentas creadas</option>'}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Monto ($)</label>
+                                <input type="number" id="inc-amount" required step="0.01" placeholder="0.00" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Fecha</label>
+                                <input type="date" id="inc-date" required value="${new Date().toISOString().split('T')[0]}" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Registrar Ingreso</button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base">Historial de Ingresos</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 uppercase">
+                                            <th class="py-3 px-4">Concepto</th>
+                                            <th class="py-3 px-4">Tipo</th>
+                                            <th class="py-3 px-4">Cuenta</th>
+                                            <th class="py-3 px-4">Monto</th>
+                                            <th class="py-3 px-4">Fecha</th>
+                                            <th class="py-3 px-4 text-right">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${listIncomes.length ? listIncomes : `<tr><td colspan="6" class="py-4 text-center text-sm text-slate-400">No hay ingresos registrados</td></tr>`}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleIncomeSubmit(e) {
+            e.preventDefault();
+            const concept = document.getElementById('inc-concept').value;
+            const type = document.getElementById('inc-type').value;
+            const accountId = document.getElementById('inc-account').value;
+            const amount = Number(document.getElementById('inc-amount').value);
+            const date = document.getElementById('inc-date').value;
+
+            if (!accountId) {
+                showToast('Debe crear al menos una cuenta antes de registrar ingresos.', 'error');
+                return;
+            }
+
+            if (!appState.incomes) appState.incomes = [];
+            if (!appState.movements) appState.movements = [];
+
+            appState.incomes.push({ id: 'inc_' + Date.now(), concept, type, accountId, amount, date });
+            const acc = appState.accounts.find(a => a.id === accountId);
+            appState.movements.push({ id: 'mov_' + Date.now(), date, type: 'Ingreso', concept, category: type, account: acc ? acc.name : 'General', accountId, amount });
+
+            saveState();
+            logAudit('Ingresos', 'Creación', `Registro de ingreso: ${concept} ($${amount})`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Ingreso registrado con éxito.');
+            switchTab('ingresos');
+        }
+
+        function deleteIncome(id) {
+            const inc = appState.incomes.find(i => i.id === id);
+            if (!inc) return;
+            appState.incomes = appState.incomes.filter(i => i.id !== id);
+            appState.movements = appState.movements.filter(m => !(m.concept === inc.concept && m.amount === inc.amount && m.type === 'Ingreso'));
+            saveState();
+            logAudit('Ingresos', 'Eliminación', `Eliminación de ingreso: ${inc.concept}`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Ingreso eliminado.');
+            switchTab('ingresos');
+        }
+
+        function renderGastos(container) {
+            let accountOptions = appState.accounts.map(a => `<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
+            let budgetOptions = appState.budgets.map(b => `<option value="${b.category}">${b.category}</option>`).join('');
+            
+            let listExpenses = appState.expenses.map(e => {
+                let acc = appState.accounts.find(a => a.id === e.accountId);
+                return `
+                    <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-900/50">
+                        <td class="py-3 px-4 text-sm font-semibold text-slate-900 dark:text-white">${e.concept}</td>
+                        <td class="py-3 px-4 text-sm"><span class="px-2 py-1 bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs rounded-lg">${e.category}</span></td>
+                        <td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">${acc ? acc.name : 'General'}</td>
+                        <td class="py-3 px-4 text-sm font-bold text-rose-600">-$${Number(e.amount).toLocaleString()}</td>
+                        <td class="py-3 px-4 text-sm text-slate-500">${e.date}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="deleteExpense('${e.id}')" class="text-rose-500 hover:text-rose-700 text-sm p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Registrar Nuevo Gasto</h3>
+                        <form onsubmit="handleExpenseSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Concepto</label>
+                                <input type="text" id="exp-concept" required placeholder="Ej. Supermercado, Gasolina" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Categoría / Presupuesto</label>
+                                <select id="exp-category" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                                    ${budgetOptions || '<option value="General">General</option>'}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Método de Pago</label>
+                                <select id="exp-method" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                                    <option value="Transferencia">Transferencia</option>
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Tarjeta de débito">Tarjeta de débito</option>
+                                    <option value="Tarjeta de crédito">Tarjeta de crédito</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cuenta de Origen</label>
+                                <select id="exp-account" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                                    ${accountOptions || '<option value="">No hay cuentas creadas</option>'}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Monto ($)</label>
+                                <input type="number" id="exp-amount" required step="0.01" placeholder="0.00" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Fecha</label>
+                                <input type="date" id="exp-date" required value="${new Date().toISOString().split('T')[0]}" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Registrar Gasto</button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Historial de Gastos</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 uppercase">
+                                        <th class="py-3 px-4">Concepto</th>
+                                        <th class="py-3 px-4">Categoría</th>
+                                        <th class="py-3 px-4">Cuenta</th>
+                                        <th class="py-3 px-4">Monto</th>
+                                        <th class="py-3 px-4">Fecha</th>
+                                        <th class="py-3 px-4 text-right">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${listExpenses.length ? listExpenses : `<tr><td colspan="6" class="py-4 text-center text-sm text-slate-400">No hay gastos registrados</td></tr>`}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleExpenseSubmit(e) {
+            e.preventDefault();
+            const concept = document.getElementById('exp-concept').value;
+            const category = document.getElementById('exp-category').value;
+            const paymentMethod = document.getElementById('exp-method').value;
+            const accountId = document.getElementById('exp-account').value;
+            const amount = Number(document.getElementById('exp-amount').value);
+            const date = document.getElementById('exp-date').value;
+
+            if (!accountId) {
+                showToast('Debe crear al menos una cuenta antes de registrar gastos.', 'error');
+                return;
+            }
+
+            appState.expenses.push({ id: 'exp_' + Date.now(), concept, category, paymentMethod, accountId, amount, date });
+            const acc = appState.accounts.find(a => a.id === accountId);
+            appState.movements.push({ id: 'mov_' + Date.now(), date, type: 'Gasto', concept, category, account: acc ? acc.name : 'General', accountId, amount: -amount });
+
+            saveState();
+            logAudit('Gastos', 'Creación', `Registro de gasto: ${concept} ($${amount})`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Gasto registrado con éxito.');
+            switchTab('gastos');
+        }
+
+        function deleteExpense(id) {
+            const exp = appState.expenses.find(e => e.id === id);
+            if (!exp) return;
+            appState.expenses = appState.expenses.filter(e => e.id !== id);
+            appState.movements = appState.movements.filter(m => !(m.concept === exp.concept && m.amount === -exp.amount && m.type === 'Gasto'));
+            saveState();
+            logAudit('Gastos', 'Eliminación', `Eliminación de gasto: ${exp.concept}`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Gasto eliminado.');
+            switchTab('gastos');
+        }
+
+        function renderPresupuesto(container) {
+            let budgetCards = appState.budgets.map(b => {
+                let spent = getCategorySpending(b.category);
+                let percentage = b.limit > 0 ? Math.min(100, Math.round((spent / b.limit) * 100)) : 0;
+                let barColor = percentage > 90 ? 'bg-rose-600' : percentage > 75 ? 'bg-amber-500' : 'bg-emerald-500';
+                
+                return `
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-slate-900 dark:text-white text-base">${b.category}</span>
+                            <button onclick="deleteBudget('${b.id}')" class="text-slate-400 hover:text-rose-600 text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-500">
+                            <span>Gastado: $${spent.toLocaleString()}</span>
+                            <span>Límite: $${Number(b.limit).toLocaleString()}</span>
+                        </div>
+                        <div class="w-full bg-slate-100 dark:bg-slate-900 h-2.5 rounded-full overflow-hidden">
+                            <div class="${barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="text-[11px] font-semibold text-right text-slate-500">${percentage}% consumido</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Nueva Categoría / Límite</h3>
+                        <form onsubmit="handleBudgetSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nombre Categoría</label>
+                                <input type="text" id="bud-category" required placeholder="Ej. Educación, Viajes" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Límite Mensual ($)</label>
+                                <input type="number" id="bud-limit" required step="0.01" placeholder="0.00" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Crear Presupuesto</button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-6">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Control de Presupuestos por Categoría</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${budgetCards.length ? budgetCards : `<div class="col-span-2 text-center text-slate-400 text-sm py-6">No hay presupuestos definidos</div>`}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleBudgetSubmit(e) {
+            e.preventDefault();
+            const category = document.getElementById('bud-category').value;
+            const limit = Number(document.getElementById('bud-limit').value);
+            
+            if (appState.budgets.some(b => b.category.toLowerCase() === category.toLowerCase())) {
+                showToast('Esta categoría ya existe.', 'error');
+                return;
+            }
+
+            appState.budgets.push({ id: 'bud_' + Date.now(), category, limit });
+            saveState();
+            logAudit('Presupuestos', 'Creación', `Nuevo presupuesto creado: ${category} ($${limit})`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Presupuesto creado con éxito.');
+            switchTab('presupuesto');
+        }
+
+        function deleteBudget(id) {
+            appState.budgets = appState.budgets.filter(b => b.id !== id);
+            saveState();
+            logAudit('Presupuestos', 'Eliminación', 'Eliminación de presupuesto', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Presupuesto eliminado.');
+            switchTab('presupuesto');
+        }
+
+        function renderCuentas(container) {
+            let accountCards = appState.accounts.map(acc => {
+                let currentBal = getAccountCurrentBalance(acc.id);
+                return `
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="px-3 py-1 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs font-semibold rounded-lg">${acc.type}</span>
+                                <div class="flex space-x-2">
+                                    <button onclick="openEditAccountModal('${acc.id}')" class="text-slate-400 hover:text-indigo-600 text-xs p-1 rounded transition-colors cursor-pointer" title="Modificar nombre o saldo (Requiere Admin)"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button onclick="deleteAccount('${acc.id}')" class="text-slate-400 hover:text-rose-600 text-xs p-1 rounded transition-colors cursor-pointer" title="Eliminar cuenta"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </div>
+                            <h4 class="text-lg font-bold text-slate-900 dark:text-white">${acc.name}</h4>
+                            <div class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-2">$${currentBal.toLocaleString()}</div>
+                        </div>
+                        <div class="text-xs text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-700">Saldo inicial: $${Number(acc.initialBalance).toLocaleString()}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Nueva Cuenta</h3>
+                        <form onsubmit="handleAccountSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nombre de Cuenta / Identificador</label>
+                                <input type="text" id="acc-name" required placeholder="Ej. BBVA Nómina, Tarjeta Stori" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Tipo de Cuenta</label>
+                                <select id="acc-type" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                                    <option value="Cuenta bancaria">Cuenta bancaria</option>
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Tarjeta de débito">Tarjeta de débito</option>
+                                    <option value="Tarjeta de crédito">Tarjeta de crédito</option>
+                                    <option value="Ahorro">Ahorro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Saldo Inicial / Crédito Disponible ($)</label>
+                                <input type="number" id="acc-initial" required step="0.01" placeholder="0.00" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Crear Cuenta</button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base">Mis Cuentas Activas</h3>
+                            <span class="text-xs text-slate-500 italic"><i class="fa-solid fa-shield-halved text-rose-500 mr-1"></i> Modificar saldo requiere contraseña admin (3312)</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${accountCards.length ? accountCards : `<div class="col-span-2 text-center text-slate-400 text-sm py-6">No hay cuentas registradas</div>`}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleAccountSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('acc-name').value;
+            const type = document.getElementById('acc-type').value;
+            const initialBalance = Number(document.getElementById('acc-initial').value);
+
+            appState.accounts.push({ id: 'acc_' + Date.now(), name, type, initialBalance });
+            saveState();
+            logAudit('Cuentas', 'Creación', `Nueva cuenta creada: ${name} (${type})`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Cuenta creada con éxito.');
+            switchTab('cuentas');
+        }
+
+        function openEditAccountModal(accountId) {
+            const acc = appState.accounts.find(a => a.id === accountId);
+            if (!acc) return;
+            document.getElementById('edit-acc-id').value = acc.id;
+            document.getElementById('edit-acc-name').value = acc.name;
+            document.getElementById('edit-acc-balance').value = acc.initialBalance;
+            document.getElementById('edit-acc-admin-pass').value = '';
+            document.getElementById('edit-acc-error').classList.add('hidden');
+
+            const modal = document.getElementById('edit-account-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeEditAccountModal() {
+            const modal = document.getElementById('edit-account-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function handleAccountEditSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-acc-id').value;
+            const newName = document.getElementById('edit-acc-name').value;
+            const newBalance = Number(document.getElementById('edit-acc-balance').value);
+            const adminPass = document.getElementById('edit-acc-admin-pass').value;
+
+            if (adminPass !== '3312') {
+                const err = document.getElementById('edit-acc-error');
+                err.textContent = 'Contraseña de administrador incorrecta (debe ser 3312).';
+                err.classList.remove('hidden');
+                logAudit('Cuentas', 'Modificación', 'Intento fallido de modificar cuenta por contraseña admin incorrecta', 'Rechazado', 'Admin', 'Administrador');
+                return;
+            }
+
+            let acc = appState.accounts.find(a => a.id === id);
+            if (!acc) return;
+
+            acc.name = newName;
+            acc.initialBalance = newBalance;
+            saveState();
+            closeEditAccountModal();
+            logAudit('Cuentas', 'Modificación', `Modificación de cuenta ${newName} con contraseña admin`, 'Exitoso', 'Admin', 'Administrador');
+            showToast('Cuenta modificada exitosamente.');
+            switchTab('cuentas');
+        }
+
+        function deleteAccount(id) {
+            appState.accounts = appState.accounts.filter(a => a.id !== id);
+            saveState();
+            logAudit('Cuentas', 'Eliminación', 'Eliminación de cuenta bancaria', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Cuenta eliminada.');
+            switchTab('cuentas');
+        }
+
+        function renderTraspasos(container) {
+            let accountOptions = appState.accounts.map(a => `<option value="${a.id}">${a.name} ($${getAccountCurrentBalance(a.id).toLocaleString()})</option>`).join('');
+            
+            let listTransfers = (appState.transfers || []).slice().reverse().map(t => {
+                let fromAcc = appState.accounts.find(a => a.id === t.fromAccountId);
+                let toAcc = appState.accounts.find(a => a.id === t.toAccountId);
+                return `
+                    <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                        <td class="py-3 px-4 text-sm text-slate-500">${t.date}</td>
+                        <td class="py-3 px-4 text-sm font-semibold text-slate-900 dark:text-white">${fromAcc ? fromAcc.name : 'Externa'}</td>
+                        <td class="py-3 px-4 text-sm font-semibold text-slate-900 dark:text-white">${toAcc ? toAcc.name : 'Externa'}</td>
+                        <td class="py-3 px-4 text-sm font-bold text-indigo-600">$${Number(t.amount).toLocaleString()}</td>
+                        <td class="py-3 px-4 text-sm text-slate-500">${t.concept || 'Traspaso entre cuentas'}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="deleteTransfer('${t.id}')" class="text-rose-500 hover:text-rose-700 text-sm p-1.5 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer" title="Eliminar traspaso"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <div class="flex items-center space-x-2 text-indigo-600">
+                            <i class="fa-solid fa-right-left text-lg"></i>
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base">Nuevo Traspaso de Dinero</h3>
+                        </div>
+                        <p class="text-xs text-slate-500">Mueve fondos de una cuenta a otra de forma inmediata.</p>
+                        <form onsubmit="handleTransferSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cuenta de Origen (Sale dinero)</label>
+                                <select id="tr-from" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                                    ${accountOptions || '<option value="">No hay cuentas</option>'}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cuenta de Destino (Entra dinero)</label>
+                                <select id="tr-to" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                                    ${accountOptions || '<option value="">No hay cuentas</option>'}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Monto a traspasar ($)</label>
+                                <input type="number" id="tr-amount" required step="0.01" placeholder="0.00" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Concepto / Motivo</label>
+                                <input type="text" id="tr-concept" placeholder="Ej. Pago de tarjeta, Ahorro mensual" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Fecha</label>
+                                <input type="date" id="tr-date" required value="${new Date().toISOString().split('T')[0]}" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Realizar Traspaso</button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Historial de Traspasos</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 uppercase">
+                                        <th class="py-3 px-4">Fecha</th>
+                                        <th class="py-3 px-4">Origen</th>
+                                        <th class="py-3 px-4">Destino</th>
+                                        <th class="py-3 px-4">Monto</th>
+                                        <th class="py-3 px-4">Concepto</th>
+                                        <th class="py-3 px-4 text-right">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${listTransfers.length ? listTransfers : `<tr><td colspan="6" class="py-4 text-center text-sm text-slate-400">No hay traspasos registrados</td></tr>`}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleTransferSubmit(e) {
+            e.preventDefault();
+            const fromAccountId = document.getElementById('tr-from').value;
+            const toAccountId = document.getElementById('tr-to').value;
+            const amount = Number(document.getElementById('tr-amount').value);
+            const concept = document.getElementById('tr-concept').value || 'Traspaso entre cuentas';
+            const date = document.getElementById('tr-date').value;
+
+            if (fromAccountId === toAccountId) {
+                showToast('La cuenta de origen y destino no pueden ser la misma.', 'error');
+                return;
+            }
+
+            if (amount <= 0) {
+                showToast('Ingrese un monto válido mayor a 0.', 'error');
+                return;
+            }
+
+            const fromAcc = appState.accounts.find(a => a.id === fromAccountId);
+            const toAcc = appState.accounts.find(a => a.id === toAccountId);
+
+            if (!appState.transfers) appState.transfers = [];
+            appState.transfers.push({ id: 'tr_' + Date.now(), fromAccountId, toAccountId, amount, concept, date });
+
+            if (!appState.movements) appState.movements = [];
+            appState.movements.push({
+                id: 'mov_tr_out_' + Date.now(),
+                date,
+                type: 'Gasto',
+                concept: `Traspaso a ${toAcc.name}: ${concept}`,
+                category: 'Traspasos',
+                account: fromAcc.name,
+                accountId: fromAcc.id,
+                amount: -amount
+            });
+
+            appState.movements.push({
+                id: 'mov_tr_in_' + Date.now(),
+                date,
+                type: 'Ingreso',
+                concept: `Traspaso desde ${fromAcc.name}: ${concept}`,
+                category: 'Traspasos',
+                account: toAcc.name,
+                accountId: toAcc.id,
+                amount: amount
+            });
+
+            saveState();
+            logAudit('Traspasos', 'Creación', `Traspaso de $${amount} de ${fromAcc.name} a ${toAcc.name}`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Traspaso realizado con éxito.');
+            switchTab('traspasos');
+        }
+
+        function deleteTransfer(id) {
+            const tr = (appState.transfers || []).find(t => t.id === id);
+            if (!tr) return;
+            appState.transfers = appState.transfers.filter(t => t.id !== id);
+            appState.movements = appState.movements.filter(m => !m.concept.includes(`Traspaso`) || m.amount !== -tr.amount && m.amount !== tr.amount);
+            saveState();
+            logAudit('Traspasos', 'Eliminación', 'Eliminación de traspaso', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Traspaso eliminado.');
+            switchTab('traspasos');
+        }
+
+        function renderDisponerCredito(container) {
+            let accountOptions = appState.accounts.map(a => `<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <div class="flex items-center space-x-2 text-indigo-600">
+                            <i class="fa-solid fa-hand-holding-dollar text-lg"></i>
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base">Disponer de Crédito</h3>
+                        </div>
+                        <p class="text-xs text-slate-500">Solicita dinero de tu línea de crédito o tarjeta, recíbelo en tu cuenta destino y genera automáticamente la deuda conectada.</p>
+                        
+                        <form onsubmit="handleDisponerCreditoSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Nombre de la Institución / Préstamo</label>
+                                <input type="text" id="disp-inst" required placeholder="Ej. Stori, BBVA, Préstamo Personal" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Monto que se solicitó ($)</label>
+                                <input type="number" id="disp-amount" required step="0.01" placeholder="Ej. 2000" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cuenta Destino (¿A qué cuenta va a ir el dinero?)</label>
+                                <select id="disp-dest-acc" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                                    ${accountOptions || '<option value="">No hay cuentas</option>'}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cuenta / Tarjeta donde se retirará el préstamo (Conectada)</label>
+                                <select id="disp-credit-acc" required class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                                    ${accountOptions || '<option value="">No hay cuentas</option>'}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Pago mensual requerido estimado ($)</label>
+                                <input type="number" id="disp-payment" required step="0.01" placeholder="Ej. 500" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Fecha límite de pago (Día)</label>
+                                <input type="text" id="disp-day" required placeholder="Ej. Día 1 de cada mes" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                            </div>
+                            <div id="disp-error-box" class="hidden p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 text-xs font-medium rounded-xl">
+                                ❌ No se puede realizar la operación. La cuenta de origen no tiene saldo o crédito disponible suficiente.
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer transition-all">Disponer Crédito y Crear Deuda</button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base">¿Cómo funciona la Disposición de Crédito?</h3>
+                            <div class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+                                <div class="p-4 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl border border-indigo-100 dark:border-indigo-900/50 flex items-start space-x-3">
+                                    <i class="fa-solid fa-circle-info text-indigo-600 dark:text-indigo-400 text-lg mt-0.5"></i>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 dark:text-white">Reglas y Automatización</h4>
+                                        <ul class="list-disc list-inside mt-1 space-y-1 text-xs text-slate-500 dark:text-slate-400">
+                                            <li>Se verifica que la cuenta o tarjeta de donde se pide el préstamo tenga fondos o crédito disponible.</li>
+                                            <li>El dinero solicitado se ingresa inmediatamente en la cuenta destino seleccionada (ej. Efectivo).</li>
+                                            <li>Se crea automáticamente una <strong>nueva deuda</strong> vinculada a la tarjeta de crédito u origen.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleDisponerCreditoSubmit(e) {
+            e.preventDefault();
+            const institution = document.getElementById('disp-inst').value;
+            const amount = Number(document.getElementById('disp-amount').value);
+            const destAccId = document.getElementById('disp-dest-acc').value;
+            const creditAccId = document.getElementById('disp-credit-acc').value;
+            const requiredPayment = Number(document.getElementById('disp-payment').value);
+            const paymentDay = document.getElementById('disp-day').value;
+            const errorBox = document.getElementById('disp-error-box');
+
+            errorBox.classList.add('hidden');
+
+            if (creditAccId === destAccId) {
+                showToast('La cuenta de origen del crédito y la cuenta destino no pueden ser la misma.', 'error');
+                return;
+            }
+
+            if (amount <= 0) {
+                showToast('Ingrese un monto válido mayor a 0.', 'error');
+                return;
+            }
+
+            const availableCredit = getAccountCurrentBalance(creditAccId);
+            if (amount > availableCredit) {
+                errorBox.classList.remove('hidden');
+                logAudit('Crédito', 'Disponer Crédito', `Intento de disposición de $${amount} rechazado por falta de fondos`, 'Rechazado', 'Usuario Pro', 'Usuario Pro');
+                showToast('Operación denegada. Monto mayor al disponible.', 'error');
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            if (!appState.movements) appState.movements = [];
+
+            appState.movements.push({
+                id: 'mov_disp_out_' + Date.now(),
+                date: today,
+                type: 'Gasto',
+                concept: `Disposición de crédito (${institution})`,
+                category: 'Crédito',
+                accountId: creditAccId,
+                amount: -amount
+            });
+
+            appState.movements.push({
+                id: 'mov_disp_in_' + Date.now(),
+                date: today,
+                type: 'Ingreso',
+                concept: `Préstamo recibido (${institution})`,
+                category: 'Crédito',
+                accountId: destAccId,
+                amount: amount
+            });
+
+            if (!appState.debts) appState.debts = [];
+            appState.debts.push({
+                id: 'deb_' + Date.now(),
+                name: `Préstamo ${institution}`,
+                type: 'Préstamo',
+                institution,
+                originalAmount: amount,
+                currentBalance: amount,
+                requiredPayment,
+                frequency: 'Mensual',
+                paymentDay,
+                connectedAccountId: creditAccId
+            });
+
+            saveState();
+            logAudit('Crédito', 'Disposición Exitosa', `Disposición de $${amount} de ${institution}`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Crédito dispuesto y deuda generada exitosamente.');
+            switchTab('deudas');
+        }
+
+        function renderDeudas(container) {
+            let listDebts = (appState.debts || []).map(d => {
+                let connectedAcc = appState.accounts.find(a => a.id === d.connectedAccountId);
+                return `
+                    <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                        <td class="py-3 px-4 text-sm font-semibold text-slate-900 dark:text-white">${d.name}</td>
+                        <td class="py-3 px-4 text-sm text-slate-500">${d.institution || 'N/A'}</td>
+                        <td class="py-3 px-4 text-sm font-bold text-amber-600">$${Number(d.currentBalance).toLocaleString()}</td>
+                        <td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">$${Number(d.requiredPayment || 0).toLocaleString()} (${d.paymentDay || 'Mensual'})</td>
+                        <td class="py-3 px-4 text-sm text-slate-500">${connectedAcc ? connectedAcc.name : 'General'}</td>
+                        <td class="py-3 px-4 text-right space-x-1">
+                            <button onclick="openPayDebtModal('${d.id}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow cursor-pointer">Abonar</button>
+                            <button onclick="deleteDebt('${d.id}')" class="text-rose-500 hover:text-rose-700 text-xs p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Gestión de Deudas y Créditos</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 uppercase">
+                                    <th class="py-3 px-4">Deuda</th>
+                                    <th class="py-3 px-4">Institución</th>
+                                    <th class="py-3 px-4">Saldo Pendiente</th>
+                                    <th class="py-3 px-4">Pago Req.</th>
+                                    <th class="py-3 px-4">Cuenta Conectada</th>
+                                    <th class="py-3 px-4 text-right">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${listDebts.length ? listDebts : `<tr><td colspan="6" class="py-4 text-center text-sm text-slate-400">No hay deudas registradas</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openPayDebtModal(debtId) {
+            const d = appState.debts.find(item => item.id === debtId);
+            if (!d) return;
+            document.getElementById('pay-debt-id').value = d.id;
+            document.getElementById('pay-debt-name').value = `${d.name} (Pendiente: $${d.currentBalance})`;
+            document.getElementById('pay-debt-amount').value = d.requiredPayment || '';
+
+            const select = document.getElementById('pay-debt-account');
+            select.innerHTML = appState.accounts.map(a => `<option value="${a.id}">${a.name} ($${getAccountCurrentBalance(a.id).toLocaleString()})</option>`).join('');
+
+            const modal = document.getElementById('pay-debt-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePayDebtModal() {
+            const modal = document.getElementById('pay-debt-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function handlePayDebtSubmit(e) {
+            e.preventDefault();
+            const debtId = document.getElementById('pay-debt-id').value;
+            const accountId = document.getElementById('pay-debt-account').value;
+            const amount = Number(document.getElementById('pay-debt-amount').value);
+
+            const debt = appState.debts.find(d => d.id === debtId);
+            if (!debt) return;
+
+            if (amount <= 0 || amount > debt.currentBalance) {
+                showToast('Monto de abono inválido.', 'error');
+                return;
+            }
+
+            debt.currentBalance -= amount;
+            if (debt.currentBalance <= 0) {
+                appState.debts = appState.debts.filter(d => d.id !== debtId);
+            }
+
+            const acc = appState.accounts.find(a => a.id === accountId);
+            const today = new Date().toISOString().split('T')[0];
+
+            if (!appState.movements) appState.movements = [];
+            appState.movements.push({
+                id: 'mov_debt_' + Date.now(),
+                date: today,
+                type: 'Gasto',
+                concept: `Abono a deuda: ${debt.name}`,
+                category: 'Deudas',
+                accountId: accountId,
+                amount: -amount
+            });
+
+            if (debt.connectedAccountId) {
+                appState.movements.push({
+                    id: 'mov_debt_back_' + Date.now(),
+                    date: today,
+                    type: 'Ingreso',
+                    concept: `Retorno de línea por abono a ${debt.name}`,
+                    category: 'Crédito',
+                    accountId: debt.connectedAccountId,
+                    amount: amount
+                });
+            }
+
+            saveState();
+            closePayDebtModal();
+            logAudit('Deudas', 'Abono', `Abono de $${amount} a deuda ${debt.name}`, 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Abono registrado con éxito.');
+            switchTab('deudas');
+        }
+
+        function deleteDebt(id) {
+            appState.debts = appState.debts.filter(d => d.id !== id);
+            saveState();
+            logAudit('Deudas', 'Eliminación', 'Eliminación de registro de deuda', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Deuda eliminada.');
+            switchTab('deudas');
+        }
+
+        function renderMovimientos(container) {
+            let listMovs = (appState.movements || []).slice().reverse().map(m => `
+                <tr class="border-b border-slate-100 dark:border-slate-700/50">
+                    <td class="py-3 px-4 text-sm text-slate-500">${m.date}</td>
+                    <td class="py-3 px-4 text-sm font-semibold text-slate-900 dark:text-white">${m.concept}</td>
+                    <td class="py-3 px-4 text-sm"><span class="px-2 py-1 ${m.type === 'Ingreso' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} text-xs rounded-lg font-semibold">${m.type}</span></td>
+                    <td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-300">${m.account || 'General'}</td>
+                    <td class="py-3 px-4 text-sm font-bold ${m.amount >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${m.amount >= 0 ? '+' : ''}$${Number(m.amount).toLocaleString()}</td>
+                </tr>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Historial General de Movimientos</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 uppercase">
+                                    <th class="py-3 px-4">Fecha</th>
+                                    <th class="py-3 px-4">Concepto</th>
+                                    <th class="py-3 px-4">Tipo</th>
+                                    <th class="py-3 px-4">Cuenta</th>
+                                    <th class="py-3 px-4">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${listMovs.length ? listMovs : `<tr><td colspan="5" class="py-4 text-center text-sm text-slate-400">No hay movimientos registrados</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderReportes(container) {
+            container.innerHTML = `
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 max-w-xl">
+                    <div class="flex items-center space-x-3 text-indigo-600">
+                        <i class="fa-solid fa-file-pdf text-2xl"></i>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Generador de Reportes Financieros en PDF</h3>
+                    </div>
+                    <p class="text-xs text-slate-500">Descarga un reporte profesional en PDF con el resumen de tus cuentas, ingresos, gastos y auditoría actual.</p>
+                    <button onclick="generatePDFReport()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer transition-all">Generar y Descargar PDF</button>
+                </div>
+            `;
+        }
+
+        function generatePDFReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.text('Finanzas Personales Pro - Reporte Financiero', 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 28);
+
+            doc.autoTable({
+                startY: 35,
+                head: [['Resumen', 'Monto']],
+                body: [
+                    ['Dinero Disponible Total', `$${getTotalAvailableMoney().toLocaleString()}`],
+                    ['Disponible para Gastar', `$${getAvailableToSpend().toLocaleString()}`],
+                    ['Total Ingresos', `$${getTotalIncomes().toLocaleString()}`],
+                    ['Total Gastos', `$${getTotalExpenses().toLocaleString()}`],
+                    ['Deudas Pendientes', `$${getTotalPendingDebts().toLocaleString()}`]
+                ],
+                theme: 'grid'
+            });
+
+            doc.save(`reporte_financiero_${new Date().toISOString().split('T')[0]}.pdf`);
+            logAudit('Reportes', 'Exportación PDF', 'Generación de reporte financiero en PDF', 'Exitoso', 'Usuario Pro', 'Usuario Pro');
+            showToast('Reporte PDF generado exitosamente.');
+        }
+
+        function renderSeguridad(container) {
+            container.innerHTML = `
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 max-w-xl">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Seguridad y Bloqueo</h3>
+                    <p class="text-xs text-slate-500">Bloquea la aplicación inmediatamente o utiliza el Panel de Administrador (contraseña 3312) para auditoría y configuraciones avanzadas.</p>
+                    <button onclick="lockApp()" class="py-2.5 px-5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm shadow-md cursor-pointer">Bloquear Sesión Ahora</button>
+                </div>
+            `;
+        }
+
+        function renderRespaldo(container) {
+            container.innerHTML = `
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 max-w-xl">
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">Respaldo de Base de Datos</h3>
+                    <p class="text-xs text-slate-500">Exporta o importa toda tu información financiera en formato JSON de manera segura.</p>
+                    <div class="flex space-x-3">
+                        <button onclick="adminExportBackup()" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm cursor-pointer">Respaldar JSON</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.onload = function() {
+            const savedTheme = localStorage.getItem('finanzas_theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                updateThemeIcon(true);
+            }
+        };
+    </script>
+</body>
+</html>
